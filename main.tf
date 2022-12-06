@@ -12,10 +12,10 @@ module "certificate" {
   source  = "terraform-aws-modules/acm/aws"
   version = "4.1.0"
 
-  domain_name = var.domain
+  domain_name = var.wildcard_only == true ? "*.${var.domain}" : var.domain
   zone_id     = var.domain_zone_id
 
-  subject_alternative_names = var.wildcard == false ? [] : ["*.${var.domain}"]
+  subject_alternative_names = var.wildcard == true && var.wildcard_only == false ? ["*.${var.domain}"] : []
 
   wait_for_validation = true
 
