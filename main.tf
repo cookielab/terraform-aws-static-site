@@ -91,7 +91,7 @@ resource "aws_cloudfront_distribution" "this" {
     }
   }
 
-  aliases = var.wildcard == false ? [var.domain] : [var.domain, "*.${var.domain}"]
+  aliases = var.wildcard == false ? [var.domain] : (var.wildcard_only == true ? ["*.${var.domain}"] : [var.domain, "*.${var.domain}"])
 
   enabled             = true
   is_ipv6_enabled     = true
@@ -149,6 +149,8 @@ resource "aws_cloudfront_distribution" "this" {
 }
 
 resource "aws_route53_record" "this" {
+  count = var.wildcard_only == false ? 1 : 0
+
   zone_id = var.domain_zone_id
   name    = var.domain
   type    = "A"
@@ -158,6 +160,11 @@ resource "aws_route53_record" "this" {
     zone_id                = aws_cloudfront_distribution.this.hosted_zone_id
     evaluate_target_health = false
   }
+}
+
+moved {
+  from = aws_route53_record.this
+  to   = aws_route53_record.this[0]
 }
 
 resource "aws_route53_record" "wildcard" {

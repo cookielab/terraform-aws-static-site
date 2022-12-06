@@ -13,6 +13,12 @@ variable "wildcard" {
   description = "Add support for wildcard domain"
 }
 
+variable "wildcard_only" {
+  type        = bool
+  default     = false
+  description = "Add only wildcard alt domain for CF"
+}
+
 variable "s3_bucket_name" {
   type = string
 }
