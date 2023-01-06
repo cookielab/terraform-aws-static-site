@@ -1,6 +1,9 @@
 locals {
+  main_domain           = one(slice(var.domains, 0, 1))
+  alternative_domains   = length(var.domains) == 1 ? [] : slice(var.domains, 1, length(var.domains))
+  main_domain_sanitized = replace(local.main_domain, "*.", "")
   tags = merge({
-    Name : var.domain
+    Name : local.main_domain_sanitized
   }, var.tags)
 }
 
@@ -12,10 +15,10 @@ module "certificate" {
   source  = "terraform-aws-modules/acm/aws"
   version = "4.1.0"
 
-  domain_name = var.wildcard_only == true ? "*.${var.domain}" : var.domain
+  domain_name = local.main_domain
   zone_id     = var.domain_zone_id
 
-  subject_alternative_names = var.wildcard == true && var.wildcard_only == false ? ["*.${var.domain}"] : []
+  subject_alternative_names = local.alternative_domains
 
   wait_for_validation = true
 
@@ -23,7 +26,7 @@ module "certificate" {
 }
 
 resource "aws_cloudfront_origin_access_identity" "this" {
-  comment = "Access from CF to S3 - ${var.domain}"
+  comment = "Access from CF to S3 - ${local.main_domain}"
 }
 
 data "aws_iam_policy_document" "bucket_policy" {
@@ -80,7 +83,7 @@ module "s3_bucket" {
 }
 
 resource "aws_cloudfront_distribution" "this" {
-  comment = var.domain
+  comment = local.main_domain
 
   origin {
     domain_name = module.s3_bucket.s3_bucket_bucket_regional_domain_name
@@ -91,7 +94,7 @@ resource "aws_cloudfront_distribution" "this" {
     }
   }
 
-  aliases = var.wildcard == false ? [var.domain] : (var.wildcard_only == true ? ["*.${var.domain}"] : [var.domain, "*.${var.domain}"])
+  aliases = var.domains
 
   enabled             = true
   is_ipv6_enabled     = true
@@ -149,29 +152,10 @@ resource "aws_cloudfront_distribution" "this" {
 }
 
 resource "aws_route53_record" "this" {
-  count = var.wildcard_only == false ? 1 : 0
+  for_each = var.domains
 
   zone_id = var.domain_zone_id
-  name    = var.domain
-  type    = "A"
-
-  alias {
-    name                   = aws_cloudfront_distribution.this.domain_name
-    zone_id                = aws_cloudfront_distribution.this.hosted_zone_id
-    evaluate_target_health = false
-  }
-}
-
-moved {
-  from = aws_route53_record.this
-  to   = aws_route53_record.this[0]
-}
-
-resource "aws_route53_record" "wildcard" {
-  count = var.wildcard == true ? 1 : 0
-
-  zone_id = var.domain_zone_id
-  name    = "*.${var.domain}"
+  name    = each.value
   type    = "A"
 
   alias {

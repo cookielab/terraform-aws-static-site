@@ -1,5 +1,5 @@
 resource "aws_iam_user" "deploy" {
-  name = "zvirt-${var.domain}-deploy"
+  name = "zvirt-${local.main_domain_sanitized}-deploy"
 }
 
 resource "aws_iam_access_key" "deploy" {
@@ -47,7 +47,7 @@ resource "gitlab_project_variable" "s3_bucket" {
   key   = "AWS_S3_BUCKET"
   value = module.s3_bucket.s3_bucket_id
 
-  environment_scope = var.gitlab_environment != null ? var.gitlab_environment : var.domain
+  environment_scope = var.gitlab_environment != null ? var.gitlab_environment : "*"
 }
 
 resource "gitlab_project_variable" "cloudfront_distribution_id" {
@@ -61,7 +61,7 @@ resource "gitlab_project_variable" "cloudfront_distribution_id" {
   key   = "AWS_CF_DISTRIBUTION_ID"
   value = aws_cloudfront_distribution.this.id
 
-  environment_scope = var.gitlab_environment != null ? var.gitlab_environment : var.domain
+  environment_scope = var.gitlab_environment != null ? var.gitlab_environment : "*"
 }
 
 resource "gitlab_project_variable" "site_aws_access_key_id" {
@@ -75,7 +75,7 @@ resource "gitlab_project_variable" "site_aws_access_key_id" {
   key   = "AWS_ACCESS_KEY_ID"
   value = aws_iam_access_key.deploy.id
 
-  environment_scope = var.gitlab_environment != null ? var.gitlab_environment : var.domain
+  environment_scope = var.gitlab_environment != null ? var.gitlab_environment : "*"
 }
 
 resource "gitlab_project_variable" "site_aws_secret_access_key" {
@@ -89,5 +89,5 @@ resource "gitlab_project_variable" "site_aws_secret_access_key" {
   key   = "AWS_SECRET_ACCESS_KEY"
   value = aws_iam_access_key.deploy.secret
 
-  environment_scope = var.gitlab_environment != null ? var.gitlab_environment : var.domain
+  environment_scope = var.gitlab_environment != null ? var.gitlab_environment : "*"
 }

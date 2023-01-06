@@ -3,20 +3,13 @@ variable "domain_zone_id" {
   description = "The ID of the hosted zone for domain"
 }
 
-variable "domain" {
-  type = string
-}
-
-variable "wildcard" {
-  type        = bool
-  default     = false
-  description = "Add support for wildcard domain"
-}
-
-variable "wildcard_only" {
-  type        = bool
-  default     = false
-  description = "Add only wildcard alt domain for CF"
+variable "domains" {
+  type        = list(string)
+  description = "List of domain aliases. You can also specify wildcard eg.: `*.example.com`"
+  validation {
+    condition     = length(var.domains) >= 1
+    error_message = "The domains value must contain at least one domain."
+  }
 }
 
 variable "s3_bucket_name" {

@@ -8,14 +8,14 @@ This module will create S3 bucket as storage for site and connect it with CloudF
 | ------------------------------------------------------------------------ | ------------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement_terraform) | >= 1.0, < 2.0 |
 | <a name="requirement_aws"></a> [aws](#requirement_aws)                   | ~> 4.32       |
-| <a name="requirement_gitlab"></a> [gitlab](#requirement_gitlab)          | ~> 3.18.0     |
+| <a name="requirement_gitlab"></a> [gitlab](#requirement_gitlab)          | ~> 3.18       |
 
 ## Providers
 
-| Name                                                      | Version   |
-| --------------------------------------------------------- | --------- |
-| <a name="provider_aws"></a> [aws](#provider_aws)          | ~> 4.32   |
-| <a name="provider_gitlab"></a> [gitlab](#provider_gitlab) | ~> 3.18.0 |
+| Name                                                      | Version |
+| --------------------------------------------------------- | ------- |
+| <a name="provider_aws"></a> [aws](#provider_aws)          | ~> 4.32 |
+| <a name="provider_gitlab"></a> [gitlab](#provider_gitlab) | ~> 3.18 |
 
 ## Modules
 
@@ -34,7 +34,6 @@ This module will create S3 bucket as storage for site and connect it with CloudF
 | [aws_iam_user.deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user)                                                 | resource    |
 | [aws_iam_user_policy.deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user_policy)                                   | resource    |
 | [aws_route53_record.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record)                                       | resource    |
-| [aws_route53_record.wildcard](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record)                                   | resource    |
 | [gitlab_project_variable.cloudfront_distribution_id](https://registry.terraform.io/providers/gitlabhq/gitlab/latest/docs/resources/project_variable)        | resource    |
 | [gitlab_project_variable.s3_bucket](https://registry.terraform.io/providers/gitlabhq/gitlab/latest/docs/resources/project_variable)                         | resource    |
 | [gitlab_project_variable.site_aws_access_key_id](https://registry.terraform.io/providers/gitlabhq/gitlab/latest/docs/resources/project_variable)            | resource    |
@@ -44,17 +43,16 @@ This module will create S3 bucket as storage for site and connect it with CloudF
 
 ## Inputs
 
-| Name                                                                                                | Description                          | Type          | Default            | Required |
-| --------------------------------------------------------------------------------------------------- | ------------------------------------ | ------------- | ------------------ | :------: |
-| <a name="input_cloudfront_price_class"></a> [cloudfront_price_class](#input_cloudfront_price_class) | n/a                                  | `string`      | `"PriceClass_100"` |    no    |
-| <a name="input_domain"></a> [domain](#input_domain)                                                 | n/a                                  | `string`      | n/a                |   yes    |
-| <a name="input_domain_zone_id"></a> [domain_zone_id](#input_domain_zone_id)                         | The ID of the hosted zone for domain | `string`      | n/a                |   yes    |
-| <a name="input_gitlab_environment"></a> [gitlab_environment](#input_gitlab_environment)             | n/a                                  | `string`      | `"*"`              |    no    |
-| <a name="input_gitlab_project_id"></a> [gitlab_project_id](#input_gitlab_project_id)                | n/a                                  | `string`      | `null`             |    no    |
-| <a name="input_logs_bucket"></a> [logs_bucket](#input_logs_bucket)                                  | n/a                                  | `string`      | `null`             |    no    |
-| <a name="input_s3_bucket_name"></a> [s3_bucket_name](#input_s3_bucket_name)                         | n/a                                  | `string`      | n/a                |   yes    |
-| <a name="input_tags"></a> [tags](#input_tags)                                                       | n/a                                  | `map(string)` | `{}`               |    no    |
-| <a name="input_wildcard"></a> [wildcard](#input_wildcard)                                           | Add support for wildcard domain      | `bool`        | `false`            |    no    |
+| Name                                                                                                | Description                                                                | Type           | Default            | Required |
+| --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | -------------- | ------------------ | :------: |
+| <a name="input_cloudfront_price_class"></a> [cloudfront_price_class](#input_cloudfront_price_class) | n/a                                                                        | `string`       | `"PriceClass_100"` |    no    |
+| <a name="input_domain_zone_id"></a> [domain_zone_id](#input_domain_zone_id)                         | The ID of the hosted zone for domain                                       | `string`       | n/a                |   yes    |
+| <a name="input_domains"></a> [domains](#input_domains)                                              | List of domain aliases. You can also specify wildcard eg.: `*.example.com` | `list(string)` | n/a                |   yes    |
+| <a name="input_gitlab_environment"></a> [gitlab_environment](#input_gitlab_environment)             | n/a                                                                        | `string`       | `"*"`              |    no    |
+| <a name="input_gitlab_project_id"></a> [gitlab_project_id](#input_gitlab_project_id)                | n/a                                                                        | `string`       | `null`             |    no    |
+| <a name="input_logs_bucket"></a> [logs_bucket](#input_logs_bucket)                                  | n/a                                                                        | `string`       | `null`             |    no    |
+| <a name="input_s3_bucket_name"></a> [s3_bucket_name](#input_s3_bucket_name)                         | n/a                                                                        | `string`       | n/a                |   yes    |
+| <a name="input_tags"></a> [tags](#input_tags)                                                       | n/a                                                                        | `map(string)`  | `{}`               |    no    |
 
 ## Outputs
 
