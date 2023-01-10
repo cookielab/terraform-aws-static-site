@@ -19,23 +19,23 @@ module "static-site" {
 
 | Name                                                                     | Version       |
 | ------------------------------------------------------------------------ | ------------- |
-| <a name="requirement_terraform"></a> [terraform](#requirement_terraform) | >= 1.0, < 2.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement_terraform) | >= 1.1, < 2.0 |
 | <a name="requirement_aws"></a> [aws](#requirement_aws)                   | ~> 4.32       |
-| <a name="requirement_gitlab"></a> [gitlab](#requirement_gitlab)          | ~> 3.18       |
+| <a name="requirement_gitlab"></a> [gitlab](#requirement_gitlab)          | ~> 15.7       |
 
 ## Providers
 
 | Name                                                      | Version |
 | --------------------------------------------------------- | ------- |
 | <a name="provider_aws"></a> [aws](#provider_aws)          | ~> 4.32 |
-| <a name="provider_gitlab"></a> [gitlab](#provider_gitlab) | ~> 3.18 |
+| <a name="provider_gitlab"></a> [gitlab](#provider_gitlab) | ~> 15.7 |
 
 ## Modules
 
 | Name                                                                 | Source                              | Version |
 | -------------------------------------------------------------------- | ----------------------------------- | ------- |
-| <a name="module_certificate"></a> [certificate](#module_certificate) | terraform-aws-modules/acm/aws       | 4.1.0   |
-| <a name="module_s3_bucket"></a> [s3_bucket](#module_s3_bucket)       | terraform-aws-modules/s3-bucket/aws | 3.4.0   |
+| <a name="module_certificate"></a> [certificate](#module_certificate) | terraform-aws-modules/acm/aws       | 4.3.1   |
+| <a name="module_s3_bucket"></a> [s3_bucket](#module_s3_bucket)       | terraform-aws-modules/s3-bucket/aws | 3.6.0   |
 
 ## Resources
 
