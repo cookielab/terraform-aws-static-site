@@ -13,6 +13,8 @@ jobs:
       credentials:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      packages: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
