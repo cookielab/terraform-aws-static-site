@@ -13,7 +13,7 @@ module "certificate" {
   }
 
   source  = "terraform-aws-modules/acm/aws"
-  version = "4.1.0"
+  version = "4.3.1"
 
   domain_name = local.main_domain
   zone_id     = var.domain_zone_id
