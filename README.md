@@ -2,6 +2,19 @@
 
 This module will create S3 bucket as storage for site and connect it with CloudFront for exposing it to public. It also creates TLS certificates for it.
 
+## Usage
+
+```terraform
+module "static-site" {
+  source  = "cookielab/static-site/aws"
+  version = "~> 2.0"
+
+  domains        = ["www.example.com"]
+  domain_zone_id = aws_route53_zone.example_com.zone_id
+  s3_bucket_name = "example_com_web"
+}
+```
+
 ## Requirements
 
 | Name                                                                     | Version       |
