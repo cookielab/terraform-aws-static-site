@@ -1,0 +1,44 @@
+name: Check
+on:
+  push:
+    branches:
+      - "**"
+
+jobs:
+  fmt:
+    name: Terraform Format
+    runs-on: ubuntu-latest
+    container: ghcr.io/cookielab/container-image-terraform:1.3
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Check Terraform format
+        run: terraform fmt -check=true
+  lint:
+    name: TF Lint
+    runs-on: ubuntu-latest
+    container: ghcr.io/cookielab/container-image-terraform:1.3
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Check TF lint
+        run: tflint .
+  validate:
+    name: Terraform Validate
+    runs-on: ubuntu-latest
+    container: ghcr.io/cookielab/container-image-terraform:1.3
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Inject additional provider
+        uses: "finnp/create-file-action@master"
+        env:
+          FILE_NAME: "test_injection.tf"
+          FILE_DATA: |
+            provider "aws" {
+              alias = "us_east_1"
+            }
+      - name: Terraform init
+        run: terraform init
+      - name: Terraform validate
+        run: terraform validate
