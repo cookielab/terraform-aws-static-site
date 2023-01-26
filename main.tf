@@ -152,7 +152,7 @@ resource "aws_cloudfront_distribution" "this" {
 }
 
 resource "aws_route53_record" "this" {
-  for_each = var.domains
+  for_each = toset(var.domains)
 
   zone_id = var.domain_zone_id
   name    = each.value
