@@ -7,7 +7,7 @@ This module will create S3 bucket as storage for site and connect it with CloudF
 ```terraform
 module "static-site" {
   source  = "cookielab/static-site/aws"
-  version = "~> 2.0"
+  version = "~> 2.1"
 
   domains        = ["www.example.com"]
   domain_zone_id = aws_route53_zone.example_com.zone_id
@@ -21,20 +21,19 @@ module "static-site" {
 | ------------------------------------------------------------------------ | ------------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement_terraform) | >= 1.1, < 2.0 |
 | <a name="requirement_aws"></a> [aws](#requirement_aws)                   | ~> 4.32       |
-| <a name="requirement_gitlab"></a> [gitlab](#requirement_gitlab)          | ~> 15.7       |
 
 ## Providers
 
-| Name                                                      | Version |
-| --------------------------------------------------------- | ------- |
-| <a name="provider_aws"></a> [aws](#provider_aws)          | ~> 4.32 |
-| <a name="provider_gitlab"></a> [gitlab](#provider_gitlab) | ~> 15.7 |
+| Name                                             | Version |
+| ------------------------------------------------ | ------- |
+| <a name="provider_aws"></a> [aws](#provider_aws) | ~> 4.32 |
 
 ## Modules
 
 | Name                                                                 | Source                              | Version |
 | -------------------------------------------------------------------- | ----------------------------------- | ------- |
 | <a name="module_certificate"></a> [certificate](#module_certificate) | terraform-aws-modules/acm/aws       | 4.3.1   |
+| <a name="module_gitlab"></a> [gitlab](#module_gitlab)                | ./modules/gitlab                    | n/a     |
 | <a name="module_s3_bucket"></a> [s3_bucket](#module_s3_bucket)       | terraform-aws-modules/s3-bucket/aws | 3.6.0   |
 
 ## Resources
@@ -47,10 +46,6 @@ module "static-site" {
 | [aws_iam_user.deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user)                                                 | resource    |
 | [aws_iam_user_policy.deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user_policy)                                   | resource    |
 | [aws_route53_record.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record)                                       | resource    |
-| [gitlab_project_variable.cloudfront_distribution_id](https://registry.terraform.io/providers/gitlabhq/gitlab/latest/docs/resources/project_variable)        | resource    |
-| [gitlab_project_variable.s3_bucket](https://registry.terraform.io/providers/gitlabhq/gitlab/latest/docs/resources/project_variable)                         | resource    |
-| [gitlab_project_variable.site_aws_access_key_id](https://registry.terraform.io/providers/gitlabhq/gitlab/latest/docs/resources/project_variable)            | resource    |
-| [gitlab_project_variable.site_aws_secret_access_key](https://registry.terraform.io/providers/gitlabhq/gitlab/latest/docs/resources/project_variable)        | resource    |
 | [aws_iam_policy_document.bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document)                 | data source |
 | [aws_iam_policy_document.deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document)                        | data source |
 
