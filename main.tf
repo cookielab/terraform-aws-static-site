@@ -58,13 +58,8 @@ module "s3_bucket" {
   attach_policy = true
   policy        = data.aws_iam_policy_document.bucket_policy.json
 
-  acl                                   = "private"
   attach_deny_insecure_transport_policy = true
   attach_require_latest_tls_policy      = true
-  block_public_acls                     = true
-  block_public_policy                   = true
-  ignore_public_acls                    = true
-  restrict_public_buckets               = true
 
   logging = var.logs_bucket == null ? {} : {
     target_bucket = var.logs_bucket
