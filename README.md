@@ -5,9 +5,18 @@ This module will create S3 bucket as storage for site and connect it with CloudF
 ## Usage
 
 ```terraform
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+}
+
 module "static-site" {
   source  = "cookielab/static-site/aws"
   version = "~> 2.1"
+
+  providers = {
+    aws.us_east_1 = aws.us_east_1
+  }
 
   domains        = ["www.example.com"]
   domain_zone_id = aws_route53_zone.example_com.zone_id
