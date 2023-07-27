@@ -34,7 +34,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Check TF lint
-        run: tflint .
+        run: tflint
   validate:
     name: Terraform Validate
     runs-on: ubuntu-latest
