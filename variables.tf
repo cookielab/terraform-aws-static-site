@@ -36,6 +36,16 @@ variable "cloudfront_price_class" {
   default = "PriceClass_100"
 }
 
+variable "override_status_code_404" {
+  type    = number
+  default = 200
+}
+
+variable "override_status_code_403" {
+  type    = number
+  default = 403
+}
+
 variable "tags" {
   type    = map(string)
   default = {}
