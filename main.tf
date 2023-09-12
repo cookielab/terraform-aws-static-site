@@ -105,7 +105,7 @@ resource "aws_cloudfront_distribution" "this" {
   custom_error_response {
     error_caching_min_ttl = 3000
     error_code            = 403
-    response_code         = var.override_status_code_404
+    response_code         = var.override_status_code_403
     response_page_path    = "/index.html"
   }
 
