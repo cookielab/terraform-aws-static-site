@@ -13,7 +13,7 @@ module "certificate" {
   }
 
   source  = "terraform-aws-modules/acm/aws"
-  version = "4.3.2"
+  version = "5.0.0"
 
   domain_name = local.main_domain
   zone_id     = var.domain_zone_id
@@ -51,7 +51,7 @@ data "aws_iam_policy_document" "bucket_policy" {
 
 module "s3_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "3.14.0"
+  version = "3.15.1"
 
   bucket = var.s3_bucket_name
 
