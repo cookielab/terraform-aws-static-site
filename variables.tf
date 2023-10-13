@@ -50,3 +50,11 @@ variable "tags" {
   type    = map(string)
   default = {}
 }
+
+variable "proxy_paths" {
+  type = list(object({
+    origin_domain = string
+    path_prefix   = string
+  }))
+  default = []
+}
