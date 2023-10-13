@@ -20,6 +20,7 @@ module "certificate" {
 
   subject_alternative_names = local.alternative_domains
 
+  validation_method   = "DNS"
   wait_for_validation = true
 
   tags = local.tags
