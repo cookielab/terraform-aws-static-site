@@ -48,6 +48,7 @@ module "gitlab" {
   aws_cloudfront_distribution_id = aws_cloudfront_distribution.this.id
   aws_access_key_id              = aws_iam_access_key.deploy.id
   aws_secret_access_key          = aws_iam_access_key.deploy.secret
+  aws_default_region             = data.aws_region.current.name
 }
 
 moved {

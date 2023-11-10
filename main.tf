@@ -7,6 +7,8 @@ locals {
   }, var.tags)
 }
 
+data "aws_region" "current" {}
+
 module "certificate" {
   providers = {
     aws = aws.us_east_1
