@@ -23,3 +23,7 @@ variable "aws_secret_access_key" {
   type      = string
   sensitive = true
 }
+
+variable "aws_default_region" {
+  type = string
+}

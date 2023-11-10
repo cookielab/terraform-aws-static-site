@@ -14,6 +14,18 @@ resource "gitlab_project_variable" "s3_bucket" {
   environment_scope = var.gitlab_environment
 }
 
+resource "gitlab_project_variable" "aws_default_region" {
+  project = data.gitlab_project.this.id
+
+  protected = false
+  masked    = false
+
+  key   = "AWS_DEFAULT_REGION"
+  value = var.aws_default_region
+
+  environment_scope = var.gitlab_environment
+}
+
 resource "gitlab_project_variable" "cloudfront_distribution_id" {
   project = data.gitlab_project.this.id
 
