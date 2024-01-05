@@ -80,6 +80,10 @@ module "s3_bucket" {
   tags = local.tags
 }
 
+data "aws_s3_bucket" "this" {
+  bucket = var.s3_bucket_name
+}
+
 data "aws_cloudfront_origin_request_policy" "managed_all_viewer_and_cloudfront_headers" {
   name = "Managed-AllViewerAndCloudFrontHeaders-2022-06"
 }
