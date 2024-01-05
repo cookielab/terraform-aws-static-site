@@ -14,3 +14,7 @@ output "aws_secret_access_key" {
   value     = aws_iam_access_key.deploy.secret
   sensitive = true
 }
+
+output "aws_s3_bucket_arn" {
+  value = module.s3_bucket.s3_bucket_arn
+}
