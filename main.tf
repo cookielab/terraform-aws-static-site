@@ -186,6 +186,16 @@ resource "aws_cloudfront_distribution" "this" {
     minimum_protocol_version       = "TLSv1.2_2018"
   }
 
+  dynamic "logging_config" {
+    for_each = var.logs_bucket_domain_name == null ? [] : [1]
+
+    content {
+      bucket          = var.logs_bucket_domain_name
+      prefix          = "cloudfront/access_logs/${local.main_domain_sanitized}/"
+      include_cookies = false
+    }
+  }
+
   tags = local.tags
 }
 
