@@ -31,6 +31,11 @@ variable "logs_bucket" {
   default = null
 }
 
+variable "logs_bucket_domain_name" {
+  type    = string
+  default = null
+}
+
 variable "cloudfront_price_class" {
   type    = string
   default = "PriceClass_100"
