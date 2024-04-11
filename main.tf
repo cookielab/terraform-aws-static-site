@@ -153,6 +153,28 @@ resource "aws_cloudfront_distribution" "this" {
     min_ttl                = 0
     default_ttl            = 3600
     max_ttl                = 86400
+
+    dynamic "function_association" {
+      for_each = concat(
+        var.functions.viewer_request == null ? [] : [
+          {
+            event_type   = "viewer-request",
+            function_arn = var.functions.viewer_request
+          }
+        ],
+        var.functions.viewer_response == null ? [] : [
+          {
+            event_type   = "viewer-response",
+            function_arn = var.functions.viewer_response
+          }
+        ]
+      )
+
+      content {
+        event_type   = function_association.value.event_type
+        function_arn = function_association.value.function_arn
+      }
+    }
   }
 
   dynamic "ordered_cache_behavior" {

@@ -63,3 +63,10 @@ variable "proxy_paths" {
   }))
   default = []
 }
+
+variable "functions" {
+  type = object({
+    viewer_request  = optional(string)
+    viewer_response = optional(string)
+  })
+}
