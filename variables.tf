@@ -69,4 +69,5 @@ variable "functions" {
     viewer_request  = optional(string)
     viewer_response = optional(string)
   })
+  default = {}
 }
