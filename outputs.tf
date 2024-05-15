@@ -18,3 +18,7 @@ output "aws_secret_access_key" {
 output "aws_s3_bucket_arn" {
   value = module.s3_bucket.s3_bucket_arn
 }
+
+output "aws_s3_bucket_regional_domain_name" {
+  value = module.s3_bucket.s3_bucket_bucket_regional_domain_name
+}
