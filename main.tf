@@ -28,12 +28,17 @@ module "certificate" {
   tags = local.tags
 }
 
-resource "aws_cloudfront_origin_access_identity" "this" {
-  comment = "Access from CF to S3 - ${local.main_domain}"
+resource "aws_cloudfront_origin_access_control" "this" {
+  name                              = "Access from CF to S3 - ${local.main_domain}"
+  description                       = "Access from CF to S3 - ${local.main_domain}"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
 }
 
 data "aws_iam_policy_document" "bucket_policy" {
   statement {
+    sid = "AllowCloudFrontServicePrincipalReadOnly"
     actions = [
       "s3:GetObject",
     ]
@@ -43,18 +48,25 @@ data "aws_iam_policy_document" "bucket_policy" {
     ]
 
     principals {
-      type = "AWS"
+      type = "Service"
 
       identifiers = [
-        aws_cloudfront_origin_access_identity.this.iam_arn,
+        "cloudfront.amazonaws.com",
       ]
     }
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [aws_cloudfront_distribution.this.arn]
+    }
+
   }
 }
 
 module "s3_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "3.15.1"
+  version = "4.1.2"
 
   bucket = var.s3_bucket_name
 
@@ -92,12 +104,9 @@ resource "aws_cloudfront_distribution" "this" {
   comment = local.main_domain
 
   origin {
-    domain_name = module.s3_bucket.s3_bucket_bucket_regional_domain_name
-    origin_id   = var.s3_bucket_name
-
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.this.cloudfront_access_identity_path
-    }
+    domain_name              = module.s3_bucket.s3_bucket_bucket_regional_domain_name
+    origin_id                = var.s3_bucket_name
+    origin_access_control_id = aws_cloudfront_origin_access_control.this.id
   }
 
   dynamic "origin" {
