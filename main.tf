@@ -68,6 +68,19 @@ module "s3_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.1.2"
 
+  acl = var.acl
+
+  website = {
+    index_document = {
+      suffix = var.index_document
+    }
+
+    error_document = {
+      key = var.error_document
+    }
+
+  }
+
   bucket = var.s3_bucket_name
 
   attach_policy = true
