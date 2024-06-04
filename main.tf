@@ -36,6 +36,10 @@ resource "aws_cloudfront_origin_access_control" "this" {
   signing_protocol                  = "sigv4"
 }
 
+resource "aws_cloudfront_origin_access_identity" "this" {
+  comment = "Deprecated: Access from CF to S3 - ${local.main_domain} - Superseeded by OAC"
+}
+
 data "aws_iam_policy_document" "bucket_policy" {
   statement {
     sid = "AllowCloudFrontServicePrincipalReadOnly"
