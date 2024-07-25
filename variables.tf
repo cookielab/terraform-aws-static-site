@@ -95,3 +95,8 @@ variable "kms_key_policy" {
   default     = null
   description = "Override default KSM key policy"
 }
+
+variable "tmp_additional_cloudfront_distribution_arn" {
+  type        = string
+  description = "Temporary variable to pass additional cloudfront distribution to s3 bucket policy"
+}

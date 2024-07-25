@@ -10,7 +10,7 @@ locals {
 data "aws_region" "current" {}
 
 data "aws_caller_identity" "current" {}
- 
+
 module "certificate" {
   providers = {
     aws = aws.us_east_1
@@ -24,10 +24,30 @@ module "certificate" {
 
   subject_alternative_names = local.alternative_domains
 
-  validation_method   = "DNS"
-  wait_for_validation = true
+  validation_method      = "DNS"
+  wait_for_validation    = true
+  create_route53_records = false # TODO: revert before merge
 
   tags = local.tags
+}
+
+module "tmp_route53_record" { # TODO revert before merge
+  source  = "terraform-aws-modules/acm/aws"
+  version = "~> 4.0"
+
+  providers = {
+    aws = aws.us_east_1
+  }
+
+  create_certificate          = false
+  create_route53_records_only = true
+
+  validation_method = "DNS"
+
+  distinct_domain_names = [local.main_domain]
+  zone_id               = var.domain_zone_id
+
+  acm_certificate_domain_validation_options = module.certificate.acm_certificate_domain_validation_options
 }
 
 resource "aws_cloudfront_origin_access_control" "this" {
@@ -64,7 +84,7 @@ data "aws_iam_policy_document" "bucket_policy" {
     condition {
       test     = "StringEquals"
       variable = "AWS:SourceArn"
-      values   = [aws_cloudfront_distribution.this.arn]
+      values   = [aws_cloudfront_distribution.this.arn, var.tmp_additional_cloudfront_distribution_arn] #TODO: revert before mege
     }
 
   }
@@ -286,7 +306,7 @@ resource "aws_cloudfront_distribution" "this" {
 }
 
 resource "aws_route53_record" "this" {
-  for_each = toset(var.domains)
+  for_each = toset([local.main_domain]) # TODO: revert before merge
 
   zone_id = var.domain_zone_id
   name    = each.value
