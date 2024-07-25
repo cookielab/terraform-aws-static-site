@@ -7,11 +7,11 @@ output "aws_cloudfront_distribution_id" {
 }
 
 output "aws_access_key_id" {
-  value = aws_iam_access_key.deploy.id
+  value = var.enable_deploy_user ? aws_iam_access_key.deploy[0].id : null
 }
 
 output "aws_secret_access_key" {
-  value     = aws_iam_access_key.deploy.secret
+  value     = var.enable_deploy_user ? aws_iam_access_key.deploy[0].secret : null
   sensitive = true
 }
 

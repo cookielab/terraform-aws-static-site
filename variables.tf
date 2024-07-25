@@ -72,6 +72,12 @@ variable "functions" {
   default = {}
 }
 
+variable "enable_deploy_user" {
+  type        = bool
+  default     = true
+  description = "Toggle s3 deploy user creation"
+}
+
 variable "encrypt_with_kms" {
   type        = bool
   default     = false
