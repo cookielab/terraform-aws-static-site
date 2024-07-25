@@ -9,6 +9,8 @@ locals {
 
 data "aws_region" "current" {}
 
+data "aws_caller_identity" "current" {}
+ 
 module "certificate" {
   providers = {
     aws = aws.us_east_1
@@ -68,6 +70,50 @@ data "aws_iam_policy_document" "bucket_policy" {
   }
 }
 
+resource "aws_kms_key" "this" {
+  description             = "This key is used to encrypt the S3 bucket ${var.s3_bucket_name}"
+  enable_key_rotation     = true
+  deletion_window_in_days = var.kms_deletion_window_in_days
+  tags                    = local.tags
+}
+
+resource "aws_kms_alias" "this" {
+  name          = "alias/s3/${var.s3_bucket_name}"
+  target_key_id = aws_kms_key.this.key_id
+}
+
+resource "aws_kms_key_policy" "this" {
+  key_id = aws_kms_key.this.arn
+  policy = var.kms_key_policy == null ? data.aws_iam_policy_document.kms_key_policy.json : var.kms_key_policy
+}
+
+data "aws_iam_policy_document" "kms_key_policy" {
+  statement {
+    sid    = "Allow CloudFront usage of the key"
+    effect = "Allow"
+    actions = [
+      "kms:GenerateDataKey*",
+      "kms:Encrypt",
+      "kms:Decrypt",
+    ]
+    resources = ["*"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+
+      values = [
+        aws_cloudfront_distribution.this.arn
+      ]
+    }
+  }
+}
+
 module "s3_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.1.2"
@@ -85,9 +131,14 @@ module "s3_bucket" {
     target_prefix = "s3/access_log/${var.s3_bucket_name}"
   }
 
+  expected_bucket_owner = data.aws_caller_identity.current.account_id
+
   server_side_encryption_configuration = {
     rule = {
-      apply_server_side_encryption_by_default = {
+      apply_server_side_encryption_by_default = var.encrypt_with_kms ? {
+        kms_master_key_id = aws_kms_key.this.arn
+        sse_algorithm     = "aws:kms"
+        } : {
         sse_algorithm = "AES256"
       }
     }

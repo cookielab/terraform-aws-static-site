@@ -22,3 +22,6 @@ output "aws_s3_bucket_arn" {
 output "aws_s3_bucket_regional_domain_name" {
   value = module.s3_bucket.s3_bucket_bucket_regional_domain_name
 }
+output "s3_kms_key_arn" {
+  value = aws_kms_key.this.arn
+}

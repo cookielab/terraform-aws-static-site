@@ -71,3 +71,21 @@ variable "functions" {
   })
   default = {}
 }
+
+variable "encrypt_with_kms" {
+  type        = bool
+  default     = false
+  description = "Enable server side s3 bucket encryption with KMS key"
+}
+
+variable "kms_deletion_window_in_days" {
+  type        = number
+  default     = 30
+  description = "The waiting period, specified in number of days. After the waiting period ends, AWS KMS deletes the KMS key"
+}
+
+variable "kms_key_policy" {
+  type        = string
+  default     = null
+  description = "Override default KSM key policy"
+}
