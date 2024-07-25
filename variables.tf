@@ -16,6 +16,12 @@ variable "s3_bucket_name" {
   type = string
 }
 
+variable "s3_bucket_policy" {
+  type        = string
+  default     = null
+  description = "Additional S3 bucket policy"
+}
+
 variable "gitlab_project_id" {
   type    = string
   default = null
@@ -93,5 +99,5 @@ variable "kms_deletion_window_in_days" {
 variable "kms_key_policy" {
   type        = string
   default     = null
-  description = "Override default KSM key policy"
+  description = "Additional KSM key policy"
 }

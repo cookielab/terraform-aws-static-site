@@ -10,7 +10,7 @@ locals {
 data "aws_region" "current" {}
 
 data "aws_caller_identity" "current" {}
- 
+
 module "certificate" {
   providers = {
     aws = aws.us_east_1
@@ -42,7 +42,11 @@ resource "aws_cloudfront_origin_access_identity" "this" {
   comment = "Deprecated: Access from CF to S3 - ${local.main_domain} - Superseeded by OAC"
 }
 
-data "aws_iam_policy_document" "bucket_policy" {
+data "aws_iam_policy_document" "s3_bucket_policy" {
+  override_policy_documents = [
+    var.s3_bucket_policy,
+  ]
+
   statement {
     sid = "AllowCloudFrontServicePrincipalReadOnly"
     actions = [
@@ -66,7 +70,6 @@ data "aws_iam_policy_document" "bucket_policy" {
       variable = "AWS:SourceArn"
       values   = [aws_cloudfront_distribution.this.arn]
     }
-
   }
 }
 
@@ -84,10 +87,46 @@ resource "aws_kms_alias" "this" {
 
 resource "aws_kms_key_policy" "this" {
   key_id = aws_kms_key.this.arn
-  policy = var.kms_key_policy == null ? data.aws_iam_policy_document.kms_key_policy.json : var.kms_key_policy
+  policy = data.aws_iam_policy_document.kms_key_policy.json
 }
 
 data "aws_iam_policy_document" "kms_key_policy" {
+  override_policy_documents = [
+    var.kms_key_policy,
+  ]
+
+  statement {
+    sid    = "Allow root privs"
+    effect = "Allow"
+    actions = [
+      "kms:*"
+    ]
+    resources = ["*"]
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.id}:root"]
+    }
+  }
+
+  dynamic "statement" {
+    for_each = var.enable_deploy_user == true ? [1] : []
+    content {
+      sid = "Allow deploy user to use the CMK"
+      actions = [
+        "kms:GenerateDataKey*",
+        "kms:Encrypt",
+        "kms:Decrypt"
+      ]
+      resources = ["*"]
+
+      principals {
+        type        = "AWS"
+        identifiers = [aws_iam_user.deploy[0].arn]
+      }
+      effect = "Allow"
+    }
+  }
+
   statement {
     sid    = "Allow CloudFront usage of the key"
     effect = "Allow"
@@ -121,7 +160,7 @@ module "s3_bucket" {
   bucket = var.s3_bucket_name
 
   attach_policy = true
-  policy        = data.aws_iam_policy_document.bucket_policy.json
+  policy        = data.aws_iam_policy_document.s3_bucket_policy.json
 
   attach_deny_insecure_transport_policy = true
   attach_require_latest_tls_policy      = true
