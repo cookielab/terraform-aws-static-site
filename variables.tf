@@ -16,6 +16,12 @@ variable "s3_bucket_name" {
   type = string
 }
 
+variable "s3_bucket_policy" {
+  type        = string
+  default     = null
+  description = "Additional S3 bucket policy"
+}
+
 variable "gitlab_project_id" {
   type    = string
   default = null
@@ -70,4 +76,28 @@ variable "functions" {
     viewer_response = optional(string)
   })
   default = {}
+}
+
+variable "enable_deploy_user" {
+  type        = bool
+  default     = true
+  description = "Toggle s3 deploy user creation"
+}
+
+variable "encrypt_with_kms" {
+  type        = bool
+  default     = false
+  description = "Enable server side s3 bucket encryption with KMS key"
+}
+
+variable "kms_deletion_window_in_days" {
+  type        = number
+  default     = 30
+  description = "The waiting period, specified in number of days. After the waiting period ends, AWS KMS deletes the KMS key"
+}
+
+variable "kms_key_policy" {
+  type        = string
+  default     = null
+  description = "Additional KSM key policy"
 }

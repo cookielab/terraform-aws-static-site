@@ -7,11 +7,11 @@ output "aws_cloudfront_distribution_id" {
 }
 
 output "aws_access_key_id" {
-  value = aws_iam_access_key.deploy.id
+  value = var.enable_deploy_user ? aws_iam_access_key.deploy[0].id : null
 }
 
 output "aws_secret_access_key" {
-  value     = aws_iam_access_key.deploy.secret
+  value     = var.enable_deploy_user ? aws_iam_access_key.deploy[0].secret : null
   sensitive = true
 }
 
@@ -21,4 +21,7 @@ output "aws_s3_bucket_arn" {
 
 output "aws_s3_bucket_regional_domain_name" {
   value = module.s3_bucket.s3_bucket_bucket_regional_domain_name
+}
+output "s3_kms_key_arn" {
+  value = aws_kms_key.this.arn
 }
