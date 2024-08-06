@@ -18,7 +18,7 @@ variable "s3_bucket_name" {
 
 variable "s3_bucket_policy" {
   type        = string
-  default     = null
+  default     = "{}"
   description = "Additional S3 bucket policy"
 }
 
@@ -98,6 +98,6 @@ variable "kms_deletion_window_in_days" {
 
 variable "kms_key_policy" {
   type        = string
-  default     = null
+  default     = "{}"
   description = "Additional KSM key policy"
 }

@@ -44,7 +44,7 @@ resource "aws_cloudfront_origin_access_identity" "this" {
 
 data "aws_iam_policy_document" "s3_bucket_policy" {
   override_policy_documents = [
-    var.s3_bucket_policy == null ? "{}" : var.s3_bucket_policy,
+    var.s3_bucket_policy,
   ]
 
   statement {
@@ -95,7 +95,7 @@ resource "aws_kms_key_policy" "this" {
 
 data "aws_iam_policy_document" "kms_key_policy" {
   override_policy_documents = [
-    var.kms_key_policy == null ? "{} " : var.kms_key_policy,
+    var.kms_key_policy,
   ]
 
   dynamic "statement" {
