@@ -44,7 +44,7 @@ resource "aws_cloudfront_origin_access_identity" "this" {
 
 data "aws_iam_policy_document" "s3_bucket_policy" {
   override_policy_documents = [
-    var.s3_bucket_policy,
+    var.s3_bucket_policy == null ? "{}" : var.s3_bucket_policy,
   ]
 
   statement {
@@ -74,6 +74,7 @@ data "aws_iam_policy_document" "s3_bucket_policy" {
 }
 
 resource "aws_kms_key" "this" {
+  count                   = var.encrypt_with_kms ? 1 : 0
   description             = "This key is used to encrypt the S3 bucket ${var.s3_bucket_name}"
   enable_key_rotation     = true
   deletion_window_in_days = var.kms_deletion_window_in_days
@@ -81,35 +82,40 @@ resource "aws_kms_key" "this" {
 }
 
 resource "aws_kms_alias" "this" {
+  count         = var.encrypt_with_kms ? 1 : 0
   name          = "alias/s3/${var.s3_bucket_name}"
-  target_key_id = aws_kms_key.this.key_id
+  target_key_id = aws_kms_key.this[0].key_id
 }
 
 resource "aws_kms_key_policy" "this" {
-  key_id = aws_kms_key.this.arn
+  count  = var.encrypt_with_kms ? 1 : 0
+  key_id = aws_kms_key.this[0].arn
   policy = data.aws_iam_policy_document.kms_key_policy.json
 }
 
 data "aws_iam_policy_document" "kms_key_policy" {
   override_policy_documents = [
-    var.kms_key_policy,
+    var.kms_key_policy == null ? "{} " : var.kms_key_policy,
   ]
 
-  statement {
-    sid    = "Allow root privs"
-    effect = "Allow"
-    actions = [
-      "kms:*"
-    ]
-    resources = ["*"]
-    principals {
-      type        = "AWS"
-      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.id}:root"]
+  dynamic "statement" {
+    for_each = var.encrypt_with_kms ? [1] : []
+    content {
+      sid    = "Allow root privs"
+      effect = "Allow"
+      actions = [
+        "kms:*"
+      ]
+      resources = ["*"]
+      principals {
+        type        = "AWS"
+        identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.id}:root"]
+      }
     }
   }
 
   dynamic "statement" {
-    for_each = var.enable_deploy_user == true ? [1] : []
+    for_each = var.encrypt_with_kms && var.enable_deploy_user ? [1] : []
     content {
       sid = "Allow deploy user to use the CMK"
       actions = [
@@ -174,8 +180,9 @@ module "s3_bucket" {
 
   server_side_encryption_configuration = {
     rule = {
+      bucket_key_enabled = false
       apply_server_side_encryption_by_default = var.encrypt_with_kms ? {
-        kms_master_key_id = aws_kms_key.this.arn
+        kms_master_key_id = aws_kms_key.this[0].arn
         sse_algorithm     = "aws:kms"
         } : {
         sse_algorithm = "AES256"
@@ -336,4 +343,19 @@ resource "aws_route53_record" "this" {
     zone_id                = aws_cloudfront_distribution.this.hosted_zone_id
     evaluate_target_health = false
   }
+}
+
+moved {
+  from = aws_kms_key.this
+  to   = aws_kms_key.this[0]
+}
+
+moved {
+  from = aws_kms_alias.this
+  to   = aws_kms_alias.this[0]
+}
+
+moved {
+  from = aws_kms_key_policy.this
+  to   = aws_kms_key_policy.this[0]
 }
