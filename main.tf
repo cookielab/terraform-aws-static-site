@@ -36,7 +36,7 @@ data "aws_iam_policy_document" "bucket_policy" {
     ]
 
     resources = [
-      "arn:aws:s3:::${var.s3_bucket_name}/*",
+      "arn:aws:s3:::${var.s3_bucket_name_create}/*",
     ]
 
     principals {
@@ -53,7 +53,7 @@ module "s3_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "3.10.1"
 
-  bucket = var.s3_bucket_name
+  bucket = var.s3_bucket_name_create
 
   attach_policy = true
   policy        = data.aws_iam_policy_document.bucket_policy.json
@@ -63,7 +63,7 @@ module "s3_bucket" {
 
   logging = var.logs_bucket == null ? {} : {
     target_bucket = var.logs_bucket
-    target_prefix = "s3/access_log/${var.s3_bucket_name}"
+    target_prefix = "s3/access_log/${var.s3_bucket_name_create}"
   }
 
   server_side_encryption_configuration = {
@@ -81,7 +81,7 @@ resource "aws_cloudfront_distribution" "this" {
   comment = local.main_domain
 
   origin {
-    domain_name = module.s3_bucket.s3_bucket_bucket_regional_domain_name
+    domain_name = var.s3_bucket_name_create == var.s3_bucket_name ? module.s3_bucket.s3_bucket_bucket_regional_domain_name : var.s3_bucket_bucket_regional_domain_name
     origin_id   = var.s3_bucket_name
 
     s3_origin_config {
