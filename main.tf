@@ -29,6 +29,14 @@ resource "aws_cloudfront_origin_access_identity" "this" {
   comment = "Access from CF to S3 - ${local.main_domain}"
 }
 
+resource "aws_cloudfront_origin_access_control" "this" {
+  name                              = "Access from CF to S3 - ${local.main_domain}"
+  description                       = "Access from CF to S3 - ${local.main_domain}"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
 data "aws_iam_policy_document" "bucket_policy" {
   statement {
     actions = [
@@ -83,10 +91,7 @@ resource "aws_cloudfront_distribution" "this" {
   origin {
     domain_name = var.s3_bucket_name_create == var.s3_bucket_name ? module.s3_bucket.s3_bucket_bucket_regional_domain_name : var.s3_bucket_bucket_regional_domain_name
     origin_id   = var.s3_bucket_name
-
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.this.cloudfront_access_identity_path
-    }
+    origin_access_control_id = aws_cloudfront_origin_access_control.this.id
   }
 
   aliases = var.domains
