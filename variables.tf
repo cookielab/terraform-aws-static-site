@@ -101,3 +101,9 @@ variable "kms_key_policy" {
   default     = "{}"
   description = "Additional KSM key policy"
 }
+
+variable "origin_path" {
+  type        = string
+  default     = ""
+  description = "Cloudfront origin path"
+}
