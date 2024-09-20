@@ -107,3 +107,18 @@ variable "origin_path" {
   default     = ""
   description = "Cloudfront origin path"
 }
+
+variable "min_ttl" {
+  type    = number
+  default = 0
+}
+
+variable "default_ttl" {
+  type    = number
+  default = 3600
+}
+
+variable "max_ttl" {
+  type    = number
+  default = 86400
+}
