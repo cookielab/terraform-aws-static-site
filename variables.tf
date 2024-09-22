@@ -23,18 +23,21 @@ variable "s3_bucket_policy" {
 }
 
 variable "gitlab_project_id" {
-  type    = string
-  default = null
+  description = "Integrates with GitLab CI/CD to deploy site and invalidate CloudFront cache"
+  type        = string
+  default     = null
 }
 
 variable "gitlab_environment" {
-  type    = string
-  default = "*"
+  description = "GitLab environment name"
+  type        = string
+  default     = "*"
 }
 
 variable "logs_bucket" {
-  type    = string
-  default = null
+  description = "Bucket to store CloudFront logs"
+  type        = string
+  default     = null
 }
 
 variable "logs_bucket_domain_name" {
@@ -43,18 +46,21 @@ variable "logs_bucket_domain_name" {
 }
 
 variable "cloudfront_price_class" {
-  type    = string
-  default = "PriceClass_100"
+  description = "CloudFront price class"
+  type        = string
+  default     = "PriceClass_100"
 }
 
 variable "override_status_code_404" {
-  type    = number
-  default = 200
+  description = "Override status code for 404 error"
+  type        = number
+  default     = 200
 }
 
 variable "override_status_code_403" {
-  type    = number
-  default = 403
+  description = "Override status code for 403 error"
+  type        = number
+  default     = 403
 }
 
 variable "tags" {
@@ -109,16 +115,19 @@ variable "origin_path" {
 }
 
 variable "min_ttl" {
-  type    = number
-  default = 0
+  description = "Minimum amount of time that you want objects to stay in a CloudFront cache"
+  type        = number
+  default     = 0
 }
 
 variable "default_ttl" {
-  type    = number
-  default = 3600
+  description = "Default amount of time that you want objects to stay in a CloudFront cache"
+  type        = number
+  default     = 3600
 }
 
 variable "max_ttl" {
-  type    = number
-  default = 86400
+  description = "Maximum amount of time that you want objects to stay in a CloudFront cache"
+  type        = number
+  default     = 86400
 }

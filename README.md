@@ -92,7 +92,7 @@ module "static-site" {
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.27 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.67.0 |
 
 ## Modules
 
@@ -128,21 +128,24 @@ module "static-site" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_cloudfront_price_class"></a> [cloudfront\_price\_class](#input\_cloudfront\_price\_class) | n/a | `string` | `"PriceClass_100"` | no |
+| <a name="input_cloudfront_price_class"></a> [cloudfront\_price\_class](#input\_cloudfront\_price\_class) | CloudFront price class | `string` | `"PriceClass_100"` | no |
+| <a name="input_default_ttl"></a> [default\_ttl](#input\_default\_ttl) | Default amount of time that you want objects to stay in a CloudFront cache | `number` | `3600` | no |
 | <a name="input_domain_zone_id"></a> [domain\_zone\_id](#input\_domain\_zone\_id) | The ID of the hosted zone for domain | `string` | n/a | yes |
 | <a name="input_domains"></a> [domains](#input\_domains) | List of domain aliases. You can also specify wildcard eg.: `*.example.com` | `list(string)` | n/a | yes |
 | <a name="input_enable_deploy_user"></a> [enable\_deploy\_user](#input\_enable\_deploy\_user) | Toggle s3 deploy user creation | `bool` | `true` | no |
 | <a name="input_encrypt_with_kms"></a> [encrypt\_with\_kms](#input\_encrypt\_with\_kms) | Enable server side s3 bucket encryption with KMS key | `bool` | `false` | no |
 | <a name="input_functions"></a> [functions](#input\_functions) | n/a | <pre>object({<br>    viewer_request  = optional(string)<br>    viewer_response = optional(string)<br>  })</pre> | `{}` | no |
-| <a name="input_gitlab_environment"></a> [gitlab\_environment](#input\_gitlab\_environment) | n/a | `string` | `"*"` | no |
-| <a name="input_gitlab_project_id"></a> [gitlab\_project\_id](#input\_gitlab\_project\_id) | n/a | `string` | `null` | no |
+| <a name="input_gitlab_environment"></a> [gitlab\_environment](#input\_gitlab\_environment) | GitLab environment name | `string` | `"*"` | no |
+| <a name="input_gitlab_project_id"></a> [gitlab\_project\_id](#input\_gitlab\_project\_id) | Integrates with GitLab CI/CD to deploy site and invalidate CloudFront cache | `string` | `null` | no |
 | <a name="input_kms_deletion_window_in_days"></a> [kms\_deletion\_window\_in\_days](#input\_kms\_deletion\_window\_in\_days) | The waiting period, specified in number of days. After the waiting period ends, AWS KMS deletes the KMS key | `number` | `30` | no |
 | <a name="input_kms_key_policy"></a> [kms\_key\_policy](#input\_kms\_key\_policy) | Additional KSM key policy | `string` | `"{}"` | no |
-| <a name="input_logs_bucket"></a> [logs\_bucket](#input\_logs\_bucket) | n/a | `string` | `null` | no |
+| <a name="input_logs_bucket"></a> [logs\_bucket](#input\_logs\_bucket) | Bucket to store CloudFront logs | `string` | `null` | no |
 | <a name="input_logs_bucket_domain_name"></a> [logs\_bucket\_domain\_name](#input\_logs\_bucket\_domain\_name) | n/a | `string` | `null` | no |
+| <a name="input_max_ttl"></a> [max\_ttl](#input\_max\_ttl) | Maximum amount of time that you want objects to stay in a CloudFront cache | `number` | `86400` | no |
+| <a name="input_min_ttl"></a> [min\_ttl](#input\_min\_ttl) | Minimum amount of time that you want objects to stay in a CloudFront cache | `number` | `0` | no |
 | <a name="input_origin_path"></a> [origin\_path](#input\_origin\_path) | Cloudfront origin path | `string` | `""` | no |
-| <a name="input_override_status_code_403"></a> [override\_status\_code\_403](#input\_override\_status\_code\_403) | n/a | `number` | `403` | no |
-| <a name="input_override_status_code_404"></a> [override\_status\_code\_404](#input\_override\_status\_code\_404) | n/a | `number` | `200` | no |
+| <a name="input_override_status_code_403"></a> [override\_status\_code\_403](#input\_override\_status\_code\_403) | Override status code for 403 error | `number` | `403` | no |
+| <a name="input_override_status_code_404"></a> [override\_status\_code\_404](#input\_override\_status\_code\_404) | Override status code for 404 error | `number` | `200` | no |
 | <a name="input_proxy_paths"></a> [proxy\_paths](#input\_proxy\_paths) | n/a | <pre>list(object({<br>    origin_domain = string<br>    path_prefix   = string<br>  }))</pre> | `[]` | no |
 | <a name="input_s3_bucket_name"></a> [s3\_bucket\_name](#input\_s3\_bucket\_name) | n/a | `string` | n/a | yes |
 | <a name="input_s3_bucket_policy"></a> [s3\_bucket\_policy](#input\_s3\_bucket\_policy) | Additional S3 bucket policy | `string` | `"{}"` | no |
