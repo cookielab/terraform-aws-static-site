@@ -54,6 +54,7 @@ module "gitlab" {
   aws_access_key_id              = aws_iam_access_key.deploy[0].id
   aws_secret_access_key          = aws_iam_access_key.deploy[0].secret
   aws_default_region             = data.aws_region.current.name
+  aws_env_vars_suffix            = var.aws_env_vars_suffix
 }
 
 moved {

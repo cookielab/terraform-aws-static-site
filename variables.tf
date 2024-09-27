@@ -131,3 +131,9 @@ variable "max_ttl" {
   type        = number
   default     = 86400
 }
+
+variable "aws_env_vars_suffix" {
+  description = "Append suffix for Gitlab CI/CD environment variables if needed"
+  type        = string
+  default     = ""
+}
