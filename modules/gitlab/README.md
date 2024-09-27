@@ -80,6 +80,7 @@ No modules.
 | <a name="input_aws_access_key_id"></a> [aws\_access\_key\_id](#input\_aws\_access\_key\_id) | n/a | `string` | n/a | yes |
 | <a name="input_aws_cloudfront_distribution_id"></a> [aws\_cloudfront\_distribution\_id](#input\_aws\_cloudfront\_distribution\_id) | n/a | `string` | n/a | yes |
 | <a name="input_aws_default_region"></a> [aws\_default\_region](#input\_aws\_default\_region) | n/a | `string` | n/a | yes |
+| <a name="input_aws_env_vars_suffix"></a> [aws\_env\_vars\_suffix](#input\_aws\_env\_vars\_suffix) | n/a | `string` | `""` | no |
 | <a name="input_aws_s3_bucket_name"></a> [aws\_s3\_bucket\_name](#input\_aws\_s3\_bucket\_name) | n/a | `string` | n/a | yes |
 | <a name="input_aws_secret_access_key"></a> [aws\_secret\_access\_key](#input\_aws\_secret\_access\_key) | n/a | `string` | n/a | yes |
 | <a name="input_gitlab_environment"></a> [gitlab\_environment](#input\_gitlab\_environment) | n/a | `string` | `"*"` | no |

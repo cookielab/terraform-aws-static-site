@@ -9,7 +9,7 @@ resource "gitlab_project_variable" "s3_bucket" {
   masked    = false
   raw       = true
 
-  key   = "AWS_S3_BUCKET"
+  key   = "AWS_S3_BUCKET${var.aws_env_vars_suffix}"
   value = var.aws_s3_bucket_name
 
   environment_scope = var.gitlab_environment
@@ -22,7 +22,7 @@ resource "gitlab_project_variable" "aws_default_region" {
   masked    = false
   raw       = true
 
-  key   = "AWS_DEFAULT_REGION"
+  key   = "AWS_DEFAULT_REGION${var.aws_env_vars_suffix}"
   value = var.aws_default_region
 
   environment_scope = var.gitlab_environment
@@ -35,7 +35,7 @@ resource "gitlab_project_variable" "cloudfront_distribution_id" {
   masked    = false
   raw       = true
 
-  key   = "AWS_CF_DISTRIBUTION_ID"
+  key   = "AWS_CF_DISTRIBUTION_ID${var.aws_env_vars_suffix}"
   value = var.aws_cloudfront_distribution_id
 
   environment_scope = var.gitlab_environment
@@ -48,7 +48,7 @@ resource "gitlab_project_variable" "site_aws_access_key_id" {
   masked    = false
   raw       = true
 
-  key   = "AWS_ACCESS_KEY_ID"
+  key   = "AWS_ACCESS_KEY_ID${var.aws_env_vars_suffix}"
   value = var.aws_access_key_id
 
   environment_scope = var.gitlab_environment
@@ -61,7 +61,7 @@ resource "gitlab_project_variable" "site_aws_secret_access_key" {
   masked    = true
   raw       = true
 
-  key   = "AWS_SECRET_ACCESS_KEY"
+  key   = "AWS_SECRET_ACCESS_KEY${var.aws_env_vars_suffix}"
   value = var.aws_secret_access_key
 
   environment_scope = var.gitlab_environment

@@ -27,3 +27,8 @@ variable "aws_secret_access_key" {
 variable "aws_default_region" {
   type = string
 }
+
+variable "aws_env_vars_suffix" {
+  type    = string
+  default = ""
+}
