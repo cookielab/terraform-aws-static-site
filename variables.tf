@@ -137,3 +137,20 @@ variable "aws_env_vars_suffix" {
   type        = string
   default     = ""
 }
+
+variable "s3_cors_enabled" {
+  description = "Enable or disable CORS configuration for the S3 bucket"
+  type        = bool
+  default     = false
+}
+
+variable "s3_cors_rules" {
+  description = "List of CORS rules for the S3 bucket"
+  type = list(object({
+    allowed_headers = list(string)
+    allowed_methods = list(string)
+    allowed_origins = list(string)
+    expose_headers  = optional(list(string))
+    max_age_seconds = optional(number)
+  }))
+}

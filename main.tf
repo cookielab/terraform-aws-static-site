@@ -248,9 +248,10 @@ resource "aws_cloudfront_distribution" "this" {
   }
 
   default_cache_behavior {
-    allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = var.s3_bucket_name
+    allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods             = ["GET", "HEAD"]
+    target_origin_id           = var.s3_bucket_name
+    response_headers_policy_id = var.s3_cors_enabled ? aws_s3_bucket_cors_configuration.this.id : null
 
     forwarded_values {
       query_string = false
@@ -343,6 +344,46 @@ resource "aws_route53_record" "this" {
     name                   = aws_cloudfront_distribution.this.domain_name
     zone_id                = aws_cloudfront_distribution.this.hosted_zone_id
     evaluate_target_health = false
+  }
+}
+
+resource "aws_s3_bucket_cors_configuration" "this" {
+  count  = var.s3_cors_enabled ? 1 : 0
+  bucket = module.s3_bucket.s3_bucket_id
+
+  dynamic "cors_rule" {
+    for_each = var.s3_cors_rules
+    content {
+      allowed_headers = cors_rule.value.allowed_headers
+      allowed_methods = cors_rule.value.allowed_methods
+      allowed_origins = cors_rule.value.allowed_origins
+      expose_headers  = lookup(cors_rule.value, "expose_headers", null)
+      max_age_seconds = lookup(cors_rule.value, "max_age_seconds", null)
+    }
+  }
+}
+
+resource "aws_cloudfront_response_headers_policy" "this" {
+  count   = var.s3_cors_enabled ? 1 : 0
+  name    = "${var.s3_bucket_name} - response headers"
+  comment = "CloudFront response headers policy using S3 CORS rules"
+
+  cors_config {
+    access_control_allow_credentials = true
+
+    access_control_allow_headers {
+      items = var.s3_cors_rules[0].allowed_headers
+    }
+
+    access_control_allow_methods {
+      items = var.s3_cors_rules[0].allowed_methods
+    }
+
+    access_control_allow_origins {
+      items = var.s3_cors_rules[0].allowed_origins
+    }
+
+    origin_override = true
   }
 }
 
