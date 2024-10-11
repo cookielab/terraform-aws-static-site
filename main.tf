@@ -351,7 +351,7 @@ resource "aws_route53_record" "this" {
 
 resource "aws_cloudfront_response_headers_policy" "this" {
   count   = length(var.s3_cors_rule) > 0 ? 1 : 0
-  name    = "${var.s3_bucket_name} - response headers"
+  name    = "${var.s3_bucket_name}-cors"
   comment = "CloudFront response headers policy using S3 CORS rules"
 
   cors_config {
