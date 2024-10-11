@@ -109,6 +109,7 @@ module "static-site" {
 | [aws_cloudfront_distribution.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution) | resource |
 | [aws_cloudfront_origin_access_control.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_origin_access_control) | resource |
 | [aws_cloudfront_origin_access_identity.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_origin_access_identity) | resource |
+| [aws_cloudfront_response_headers_policy.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_response_headers_policy) | resource |
 | [aws_iam_access_key.deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_access_key) | resource |
 | [aws_iam_user.deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user) | resource |
 | [aws_iam_user_policy.deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user_policy) | resource |
@@ -148,8 +149,11 @@ module "static-site" {
 | <a name="input_override_status_code_403"></a> [override\_status\_code\_403](#input\_override\_status\_code\_403) | Override status code for 403 error | `number` | `403` | no |
 | <a name="input_override_status_code_404"></a> [override\_status\_code\_404](#input\_override\_status\_code\_404) | Override status code for 404 error | `number` | `200` | no |
 | <a name="input_proxy_paths"></a> [proxy\_paths](#input\_proxy\_paths) | n/a | <pre>list(object({<br>    origin_domain = string<br>    path_prefix   = string<br>  }))</pre> | `[]` | no |
+| <a name="input_response_header_access_control_allow_credentials"></a> [response\_header\_access\_control\_allow\_credentials](#input\_response\_header\_access\_control\_allow\_credentials) | n/a | `bool` | `false` | no |
+| <a name="input_response_header_origin_override"></a> [response\_header\_origin\_override](#input\_response\_header\_origin\_override) | n/a | `bool` | `false` | no |
 | <a name="input_s3_bucket_name"></a> [s3\_bucket\_name](#input\_s3\_bucket\_name) | n/a | `string` | n/a | yes |
 | <a name="input_s3_bucket_policy"></a> [s3\_bucket\_policy](#input\_s3\_bucket\_policy) | Additional S3 bucket policy | `string` | `"{}"` | no |
+| <a name="input_s3_cors_rule"></a> [s3\_cors\_rule](#input\_s3\_cors\_rule) | List of maps containing rules for Cross-Origin Resource Sharing. | <pre>list(object({<br>    allowed_headers = optional(list(string))<br>    allowed_methods = optional(list(string))<br>    allowed_origins = optional(list(string))<br>    expose_headers  = optional(list(string))<br>    max_age_seconds = optional(number)<br>  }))</pre> | `[]` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | n/a | `map(string)` | `{}` | no |
 
 ## Outputs

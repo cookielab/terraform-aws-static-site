@@ -137,3 +137,25 @@ variable "aws_env_vars_suffix" {
   type        = string
   default     = ""
 }
+
+variable "s3_cors_rule" {
+  description = "List of maps containing rules for Cross-Origin Resource Sharing."
+  type = list(object({
+    allowed_headers = optional(list(string))
+    allowed_methods = optional(list(string))
+    allowed_origins = optional(list(string))
+    expose_headers  = optional(list(string))
+    max_age_seconds = optional(number)
+  }))
+  default = []
+}
+
+variable "response_header_origin_override" {
+  type    = bool
+  default = false
+}
+
+variable "response_header_access_control_allow_credentials" {
+  type    = bool
+  default = false
+}
