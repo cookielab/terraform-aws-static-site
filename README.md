@@ -98,7 +98,7 @@ module "static-site" {
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_certificate"></a> [certificate](#module\_certificate) | terraform-aws-modules/acm/aws | 5.0.0 |
+| <a name="module_certificate"></a> [certificate](#module\_certificate) | terraform-aws-modules/acm/aws | 5.1.1 |
 | <a name="module_gitlab"></a> [gitlab](#module\_gitlab) | ./modules/gitlab | n/a |
 | <a name="module_s3_bucket"></a> [s3\_bucket](#module\_s3\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.2 |
 
@@ -116,6 +116,7 @@ module "static-site" {
 | [aws_kms_alias.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource |
 | [aws_kms_key.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
 | [aws_kms_key_policy.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key_policy) | resource |
+| [aws_route53_record.extra](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record) | resource |
 | [aws_route53_record.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_cloudfront_cache_policy.managed_caching_disabled](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/cloudfront_cache_policy) | data source |
@@ -136,6 +137,7 @@ module "static-site" {
 | <a name="input_domains"></a> [domains](#input\_domains) | List of domain aliases. You can also specify wildcard eg.: `*.example.com` | `list(string)` | n/a | yes |
 | <a name="input_enable_deploy_user"></a> [enable\_deploy\_user](#input\_enable\_deploy\_user) | Toggle s3 deploy user creation | `bool` | `true` | no |
 | <a name="input_encrypt_with_kms"></a> [encrypt\_with\_kms](#input\_encrypt\_with\_kms) | Enable server side s3 bucket encryption with KMS key | `bool` | `false` | no |
+| <a name="input_extra_domains"></a> [extra\_domains](#input\_extra\_domains) | Map of extra\_domains with domain name and zone\_id | `map(string)` | `{}` | no |
 | <a name="input_functions"></a> [functions](#input\_functions) | n/a | <pre>object({<br>    viewer_request  = optional(string)<br>    viewer_response = optional(string)<br>  })</pre> | `{}` | no |
 | <a name="input_gitlab_environment"></a> [gitlab\_environment](#input\_gitlab\_environment) | GitLab environment name | `string` | `"*"` | no |
 | <a name="input_gitlab_project_id"></a> [gitlab\_project\_id](#input\_gitlab\_project\_id) | Integrates with GitLab CI/CD to deploy site and invalidate CloudFront cache | `string` | `null` | no |
