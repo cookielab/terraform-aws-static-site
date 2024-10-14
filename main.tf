@@ -1,5 +1,6 @@
 locals {
   main_domain           = one(slice(var.domains, 0, 1))
+  extra_domain = var.extra_domain
   alternative_domains   = length(var.domains) == 1 ? [] : slice(var.domains, 1, length(var.domains))
   main_domain_sanitized = replace(local.main_domain, "*.", "")
   tags = merge({
@@ -17,7 +18,7 @@ module "certificate" {
   }
 
   source  = "terraform-aws-modules/acm/aws"
-  version = "5.0.0"
+  version = "5.1.1"
 
   domain_name = local.main_domain
   zone_id     = var.domain_zone_id
@@ -26,6 +27,8 @@ module "certificate" {
 
   validation_method   = "DNS"
   wait_for_validation = true
+
+  zones = var.extra_zones
 
   tags = local.tags
 }
@@ -336,10 +339,10 @@ resource "aws_cloudfront_distribution" "this" {
 }
 
 resource "aws_route53_record" "this" {
-  for_each = toset(var.domains)
+  for_each = var.domains is map ? var.domains : tomap({ for domain in var.domains : domain => var.domain_zone_id })
 
-  zone_id = var.domain_zone_id
-  name    = each.value
+  zone_id = each.value
+  name    = each.key
   type    = "A"
 
   alias {

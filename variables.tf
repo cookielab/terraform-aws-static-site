@@ -4,8 +4,8 @@ variable "domain_zone_id" {
 }
 
 variable "domains" {
-  type        = list(string)
-  description = "List of domain aliases. You can also specify wildcard eg.: `*.example.com`"
+  type        = any
+  description = "List or map of domain with zone_id of domain aliases. You can also specify wildcard eg.: `*.example.com`"
   validation {
     condition     = length(var.domains) >= 1
     error_message = "The domains value must contain at least one domain."
@@ -158,4 +158,10 @@ variable "response_header_origin_override" {
 variable "response_header_access_control_allow_credentials" {
   type    = bool
   default = false
+}
+
+variable "extra_zones" {
+  type        = map(string)
+  description = "Map containing the Route53 Zone IDs for additional domains."
+  default     = {}
 }
