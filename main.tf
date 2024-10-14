@@ -17,15 +17,17 @@ module "certificate" {
   }
 
   source  = "terraform-aws-modules/acm/aws"
-  version = "5.0.0"
+  version = "5.1.1"
 
   domain_name = local.main_domain
   zone_id     = var.domain_zone_id
 
-  subject_alternative_names = local.alternative_domains
+  subject_alternative_names = concat(local.alternative_domains, keys(var.extra_domains))
 
   validation_method   = "DNS"
   wait_for_validation = true
+
+  zones = var.extra_domains
 
   tags = local.tags
 }
@@ -340,6 +342,20 @@ resource "aws_route53_record" "this" {
 
   zone_id = var.domain_zone_id
   name    = each.value
+  type    = "A"
+
+  alias {
+    name                   = aws_cloudfront_distribution.this.domain_name
+    zone_id                = aws_cloudfront_distribution.this.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
+resource "aws_route53_record" "extra" {
+  for_each = var.extra_domains
+
+  zone_id = each.value
+  name    = each.key
   type    = "A"
 
   alias {
