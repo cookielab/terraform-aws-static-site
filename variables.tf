@@ -159,3 +159,9 @@ variable "response_header_access_control_allow_credentials" {
   type    = bool
   default = false
 }
+
+variable "extra_domains" {
+  type        = map(string)
+  description = "Map of extra_domains with domain name and zone_id"
+  default     = {}
+}
