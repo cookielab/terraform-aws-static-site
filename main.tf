@@ -91,7 +91,7 @@ resource "aws_kms_alias" "this" {
 
 resource "aws_kms_key_policy" "this" {
   count  = var.encrypt_with_kms ? 1 : 0
-  key_id = aws_kms_key.this[0].arn
+  key_id = aws_kms_key.this[0].key_id
   policy = data.aws_iam_policy_document.kms_key_policy.json
 }
 
