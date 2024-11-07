@@ -163,7 +163,7 @@ data "aws_iam_policy_document" "kms_key_policy" {
 
 module "s3_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.1.2"
+  version = "4.2.1"
 
   bucket = var.s3_bucket_name
 
