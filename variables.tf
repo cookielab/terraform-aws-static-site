@@ -22,10 +22,10 @@ variable "s3_bucket_policy" {
   description = "Additional S3 bucket policy"
 }
 
-variable "gitlab_project_id" {
+variable "gitlab_project_ids" {
   description = "Integrates with GitLab CI/CD to deploy site and invalidate CloudFront cache"
-  type        = string
-  default     = null
+  type        = list(string)
+  default     = []
 }
 
 variable "gitlab_environment" {

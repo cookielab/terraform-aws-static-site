@@ -1,9 +1,12 @@
 data "gitlab_project" "this" {
-  id = var.gitlab_project_id
+  for_each = toset(var.gitlab_project_ids)
+  id       = each.value
 }
 
 resource "gitlab_project_variable" "s3_bucket" {
-  project = data.gitlab_project.this.id
+  for_each = data.gitlab_project.this
+
+  project = each.value.id
 
   protected = false
   masked    = false
@@ -16,7 +19,9 @@ resource "gitlab_project_variable" "s3_bucket" {
 }
 
 resource "gitlab_project_variable" "aws_default_region" {
-  project = data.gitlab_project.this.id
+  for_each = data.gitlab_project.this
+
+  project = each.value.id
 
   protected = false
   masked    = false
@@ -29,7 +34,9 @@ resource "gitlab_project_variable" "aws_default_region" {
 }
 
 resource "gitlab_project_variable" "cloudfront_distribution_id" {
-  project = data.gitlab_project.this.id
+  for_each = data.gitlab_project.this
+
+  project = each.value.id
 
   protected = false
   masked    = false
@@ -42,7 +49,9 @@ resource "gitlab_project_variable" "cloudfront_distribution_id" {
 }
 
 resource "gitlab_project_variable" "site_aws_access_key_id" {
-  project = data.gitlab_project.this.id
+  for_each = data.gitlab_project.this
+
+  project = each.value.id
 
   protected = false
   masked    = false
@@ -55,7 +64,9 @@ resource "gitlab_project_variable" "site_aws_access_key_id" {
 }
 
 resource "gitlab_project_variable" "site_aws_secret_access_key" {
-  project = data.gitlab_project.this.id
+  for_each = data.gitlab_project.this
+
+  project = each.value.id
 
   protected = false
   masked    = true
