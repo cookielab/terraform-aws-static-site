@@ -47,6 +47,7 @@ module "gitlab" {
   source = "./modules/gitlab"
 
   gitlab_project_ids = var.gitlab_project_ids
+  gitlab_project_id  = var.gitlab_project_id
   gitlab_environment = var.gitlab_environment
 
   aws_s3_bucket_name             = module.s3_bucket.s3_bucket_id
