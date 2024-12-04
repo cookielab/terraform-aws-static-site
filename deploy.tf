@@ -42,10 +42,11 @@ resource "aws_iam_user_policy" "deploy" {
 }
 
 module "gitlab" {
-  count = var.gitlab_project_id == null ? 0 : 1
+  count = length(var.gitlab_project_ids) == 0 ? 0 : 1
 
   source = "./modules/gitlab"
 
+  gitlab_project_ids = var.gitlab_project_ids
   gitlab_project_id  = var.gitlab_project_id
   gitlab_environment = var.gitlab_environment
 

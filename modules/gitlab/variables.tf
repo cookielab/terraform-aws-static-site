@@ -1,5 +1,11 @@
+variable "gitlab_project_ids" {
+  type = list(string)
+}
+
 variable "gitlab_project_id" {
-  type = string
+  type        = string
+  description = "Deprecated: Use gitlab_project_ids instead"
+  default     = ""
 }
 
 variable "gitlab_environment" {
