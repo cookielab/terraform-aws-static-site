@@ -5,7 +5,7 @@ variable "gitlab_project_ids" {
 variable "gitlab_project_id" {
   type        = string
   description = "Deprecated: Use gitlab_project_ids instead"
-  default     = null
+  default     = ""
 }
 
 variable "gitlab_environment" {

@@ -28,6 +28,12 @@ variable "gitlab_project_ids" {
   default     = []
 }
 
+variable "gitlab_project_id" {
+  type        = string
+  description = "Deprecated: Use gitlab_project_ids instead"
+  default     = ""
+}
+
 variable "gitlab_environment" {
   description = "GitLab environment name"
   type        = string
