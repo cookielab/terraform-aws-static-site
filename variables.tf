@@ -68,6 +68,12 @@ variable "tags" {
   default = {}
 }
 
+variable "waf_acl_arn" {
+  description = "WAF ACL ARN"
+  type        = string
+  default     = null
+}
+
 variable "restriction_type" {
   description = "Apply for geo restrictions, values: none, whitelist, blacklist"
   type        = string
