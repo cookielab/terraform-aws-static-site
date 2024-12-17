@@ -68,6 +68,18 @@ variable "tags" {
   default = {}
 }
 
+variable "restriction_type" {
+  description = "Apply for geo restrictions, values: none, whitelist, blacklist"
+  type        = string
+  default     = "none"
+}
+
+variable "restrictions_locations" {
+  description = "List of country codes"
+  type        = list(string)
+  default     = null
+}
+
 variable "proxy_paths" {
   type = list(object({
     origin_domain = string
