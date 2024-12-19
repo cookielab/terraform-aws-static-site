@@ -1,3 +1,7 @@
+locals {
+  gitlab_project_ids = toset(concat(var.gitlab_project_ids, var.gitlab_project_id != "" ? [var.gitlab_project_id] : []))
+}
+
 resource "aws_iam_user" "deploy" {
   count = var.enable_deploy_user == true ? 1 : 0
   name  = "zvirt-${local.main_domain_sanitized}-deploy"
@@ -42,12 +46,11 @@ resource "aws_iam_user_policy" "deploy" {
 }
 
 module "gitlab" {
-  count = length(var.gitlab_project_ids) == 0 ? 0 : 1
+  count = length(local.gitlab_project_ids) == 0 ? 0 : 1
 
   source = "./modules/gitlab"
 
-  gitlab_project_ids = var.gitlab_project_ids
-  gitlab_project_id  = var.gitlab_project_id
+  gitlab_project_ids = local.gitlab_project_ids
   gitlab_environment = var.gitlab_environment
 
   aws_s3_bucket_name             = module.s3_bucket.s3_bucket_id

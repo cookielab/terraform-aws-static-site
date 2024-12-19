@@ -2,12 +2,6 @@ variable "gitlab_project_ids" {
   type = list(string)
 }
 
-variable "gitlab_project_id" {
-  type        = string
-  description = "Deprecated: Use gitlab_project_ids instead"
-  default     = ""
-}
-
 variable "gitlab_environment" {
   type    = string
   default = "*"

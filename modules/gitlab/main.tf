@@ -1,9 +1,5 @@
-locals {
-  gitlab_project_ids = toset(concat(var.gitlab_project_ids, var.gitlab_project_id != null ? [var.gitlab_project_id] : []))
-}
-
 data "gitlab_project" "this" {
-  for_each = local.gitlab_project_ids
+  for_each = toset(var.gitlab_project_ids)
   id       = each.value
 }
 
