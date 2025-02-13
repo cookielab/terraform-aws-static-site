@@ -2,6 +2,7 @@ locals {
   main_domain           = one(slice(var.domains, 0, 1))
   alternative_domains   = length(var.domains) == 1 ? [] : slice(var.domains, 1, length(var.domains))
   main_domain_sanitized = replace(local.main_domain, "*.", "")
+  custom_headers        = (var.custom_headers != {} && var.custom_headers != null) || length(var.s3_cors_rule) > 0 ? true : false
   tags = merge({
     Name : local.main_domain_sanitized
   }, var.tags)
@@ -255,7 +256,7 @@ resource "aws_cloudfront_distribution" "this" {
     allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cached_methods             = ["GET", "HEAD"]
     target_origin_id           = var.s3_bucket_name
-    response_headers_policy_id = length(var.s3_cors_rule) > 0 ? aws_cloudfront_response_headers_policy.this[0].id : null
+    response_headers_policy_id = local.custom_headers ? aws_cloudfront_response_headers_policy.this[0].id : null
 
     forwarded_values {
       query_string = false
@@ -367,27 +368,94 @@ resource "aws_route53_record" "extra" {
 }
 
 resource "aws_cloudfront_response_headers_policy" "this" {
-  count   = length(var.s3_cors_rule) > 0 ? 1 : 0
-  name    = "${var.s3_bucket_name}-cors"
-  comment = "CloudFront response headers policy using S3 CORS rules"
+  count   = local.custom_headers ? 1 : 0
+  name    = "${var.s3_bucket_name}-headers"
+  comment = "CloudFront response headers policy"
 
-  cors_config {
-    access_control_allow_credentials = var.response_header_access_control_allow_credentials
+  dynamic "cors_config" {
+    for_each = length(var.s3_cors_rule) > 0 ? [1] : []
+    content {
+      access_control_allow_credentials = var.response_header_access_control_allow_credentials
 
-    access_control_allow_headers {
-      items = var.s3_cors_rule[0].allowed_headers
+      access_control_allow_headers {
+        items = var.s3_cors_rule[0].allowed_headers
+      }
+
+      access_control_allow_methods {
+        items = var.s3_cors_rule[0].allowed_methods
+      }
+
+      access_control_allow_origins {
+        items = var.s3_cors_rule[0].allowed_origins
+      }
+
+      origin_override = var.response_header_origin_override
     }
-
-    access_control_allow_methods {
-      items = var.s3_cors_rule[0].allowed_methods
-    }
-
-    access_control_allow_origins {
-      items = var.s3_cors_rule[0].allowed_origins
-    }
-
-    origin_override = var.response_header_origin_override
   }
+
+  security_headers_config {
+    dynamic "content_security_policy" {
+      for_each = var.custom_headers.content_security_policy != null ? [1] : []
+      content {
+        content_security_policy = var.custom_headers.content_security_policy.policy
+        override                = var.custom_headers.response_header_origin_override.override
+      }
+    }
+
+    dynamic "content_type_options" {
+      for_each = var.custom_headers.content_type_options != null ? [1] : []
+      content {
+        override = var.custom_headers.content_type_options.override
+      }
+    }
+
+    dynamic "frame_options" {
+      for_each = var.custom_headers.frame_options != null ? [1] : []
+      content {
+        frame_option = var.custom_headers.frame_options.frame_option
+        override     = var.custom_headers.frame_options.override
+      }
+    }
+
+    dynamic "referrer_policy" {
+      for_each = var.custom_headers.referrer_policy != null ? [1] : []
+      content {
+        referrer_policy = var.custom_headers.referrer_policy.referrer_policy
+        override        = var.custom_headers.referrer_policy.override
+      }
+    }
+
+    dynamic "xss_protection" {
+      for_each = var.custom_headers.xss_protection != null ? [1] : []
+      content {
+        mode_block = var.custom_headers.xss_protection.mode_block
+        protection = var.custom_headers.xss_protection.protection
+        override   = var.custom_headers.xss_protection.override
+      }
+    }
+
+    dynamic "strict_transport_security" {
+      for_each = var.custom_headers.strict_transport_security != null ? [1] : []
+      content {
+        access_control_max_age_sec = var.custom_headers.strict_transport_security.access_control_max_age_sec
+        include_subdomains         = var.custom_headers.strict_transport_security.include_subdomains
+        preload                    = var.custom_headers.strict_transport_security.preload
+        override                   = var.custom_headers.strict_transport_security.override
+      }
+    }
+  }
+
+  custom_headers_config {
+    dynamic "items" {
+      for_each = var.custom_headers.headers
+      content {
+        header   = items.key
+        value    = items.value.value
+        override = items.value.override
+      }
+    }
+  }
+
 }
 
 moved {

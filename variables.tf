@@ -183,3 +183,54 @@ variable "extra_domains" {
   description = "Map of extra_domains with domain name and zone_id"
   default     = {}
 }
+
+variable "custom_headers" {
+  type = object({
+    headers = optional(map(object({
+      override = optional(bool, true)
+      value    = string
+    })))
+    cors_rules = optional(object({
+      use             = optional(bool, false)
+      allowed_headers = optional(list(string))
+      allowed_methods = optional(list(string))
+      allowed_origins = optional(list(string))
+      expose_headers  = optional(list(string))
+      max_age_seconds = optional(number)
+      override        = optional(bool, true)
+    }), null)
+    frame_options = optional(object({
+      use          = optional(bool, false)
+      frame_option = string
+      override     = optional(bool, true)
+    }), null)
+    referrer_policy = optional(object({
+      use             = optional(bool, false)
+      referrer_policy = string
+      override        = optional(bool, true)
+    }), null)
+    xss_protection = optional(object({
+      use        = optional(bool, false)
+      mode_block = bool
+      protection = bool
+      override   = optional(bool, true)
+    }), null)
+    content_security_policy = optional(object({
+      use                     = optional(bool, false)
+      content_security_policy = string
+      override                = optional(bool, true)
+    }), null)
+    strict_transport_security = optional(object({
+      use                        = optional(bool, false)
+      access_control_max_age_sec = string
+      include_subdomains         = bool
+      preload                    = bool
+      override                   = optional(bool, true)
+    }), null)
+    content_type_options = optional(object({
+      override = optional(bool, true)
+    }), null)
+  })
+  default = {}
+}
+
