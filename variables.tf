@@ -235,6 +235,9 @@ variable "custom_headers" {
       preload                    = bool
       override                   = optional(bool, true)
     }), null)
+    content_type_options = optional(object({
+      override = optional(bool, true)
+    }), null)
   })
 }
 
