@@ -393,7 +393,15 @@ resource "aws_cloudfront_response_headers_policy" "this" {
     }
   }
 
-  custom_headers_config {
+  security_headers_config {
+    dynamic "content_security_policy" {
+      for_each = var.custom_headers.content_security_policy != null ? [1] : []
+      content {
+        content_security_policy = var.custom_headers.content_security_policy.policy
+        override                = var.custom_headers.response_header_origin_override.override
+      }
+    }
+
     dynamic "content_type_options" {
       for_each = var.custom_headers.content_type_options != null ? [1] : []
       content {
@@ -426,14 +434,6 @@ resource "aws_cloudfront_response_headers_policy" "this" {
       }
     }
 
-    dynamic "content_security_policy" {
-      for_each = var.custom_headers.content_security_policy != null ? [1] : []
-      content {
-        content_security_policy = var.custom_headers.content_security_policy.policy
-        origin_override         = var.custom_headers.response_header_origin_override.override
-      }
-    }
-
     dynamic "strict_transport_security" {
       for_each = var.custom_headers.strict_transport_security != null ? [1] : []
       content {
@@ -443,6 +443,9 @@ resource "aws_cloudfront_response_headers_policy" "this" {
         override                   = var.custom_headers.strict_transport_security.override
       }
     }
+  }
+
+  custom_headers_config {
     dynamic "items" {
       for_each = var.custom_headers.headers
       content {
