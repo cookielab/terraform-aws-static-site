@@ -184,14 +184,6 @@ variable "extra_domains" {
   default     = {}
 }
 
-variable "content_type_options" {
-  type = object({
-
-    override = optional(bool, true)
-  })
-  default = null
-}
-
 variable "custom_headers" {
   type = object({
     headers = optional(map(object({
