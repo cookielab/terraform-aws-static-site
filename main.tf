@@ -447,7 +447,7 @@ resource "aws_cloudfront_response_headers_policy" "this" {
 
   custom_headers_config {
     dynamic "items" {
-      for_each = var.custom_headers.headers
+      for_each = var.custom_headers != {} && var.custom_headers.headers != null ? var.custom_headers.headers : {}
       content {
         header   = items.key
         value    = items.value.value
