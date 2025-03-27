@@ -237,6 +237,6 @@ variable "custom_headers" {
       override = optional(bool, true)
     }), null)
   })
-  default = {}
+  default = null
 }
 
