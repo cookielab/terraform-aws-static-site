@@ -2,7 +2,7 @@ locals {
   main_domain            = one(slice(var.domains, 0, 1))
   alternative_domains    = length(var.domains) == 1 ? [] : slice(var.domains, 1, length(var.domains))
   main_domain_sanitized  = replace(local.main_domain, "*.", "")
-  custom_headers_present = var.custom_headers != null || var.custom_headers != {}
+  custom_headers_present = var.custom_headers != null && var.custom_headers != {}
   custom_headers         = local.custom_headers_present || length(var.s3_cors_rule) > 0 ? true : false
   tags = merge({
     Name : local.main_domain_sanitized
