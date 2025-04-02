@@ -4,12 +4,12 @@ locals {
   main_domain_sanitized  = replace(local.main_domain, "*.", "")
   custom_headers_present = var.custom_headers != null && var.custom_headers != {}
   custom_headers         = local.custom_headers_present || length(var.s3_cors_rule) > 0 ? true : false
-  security_headers = (var.custom_headers != null && (var.custom_headers.content_security_policy != null ||
+  security_headers = var.custom_headers == null ? false : ((var.custom_headers.content_security_policy != null ||
     var.custom_headers.content_type_options != null ||
     var.custom_headers.frame_options != null ||
     var.custom_headers.referrer_policy != null ||
     var.custom_headers.xss_protection != null ||
-  var.custom_headers.strict_transport_security != null)) ? true : false
+  var.custom_headers.strict_transport_security != null) ? true : false)
   tags = merge({
     Name : local.main_domain_sanitized
   }, var.tags)
