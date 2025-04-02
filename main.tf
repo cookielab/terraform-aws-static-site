@@ -4,6 +4,12 @@ locals {
   main_domain_sanitized  = replace(local.main_domain, "*.", "")
   custom_headers_present = var.custom_headers != null && var.custom_headers != {}
   custom_headers         = local.custom_headers_present || length(var.s3_cors_rule) > 0 ? true : false
+  security_headers = (var.custom_headers.content_security_policy != null ||
+    var.custom_headers.content_type_options != null ||
+    var.custom_headers.frame_options != null ||
+    var.custom_headers.referrer_policy != null ||
+    var.custom_headers.xss_protection != null ||
+  var.custom_headers.strict_transport_security != null) ? true : false
   tags = merge({
     Name : local.main_domain_sanitized
   }, var.tags)
@@ -395,54 +401,57 @@ resource "aws_cloudfront_response_headers_policy" "this" {
     }
   }
 
-  security_headers_config {
-    dynamic "content_security_policy" {
-      for_each = var.custom_headers.content_security_policy != null ? [1] : []
-      content {
-        content_security_policy = var.custom_headers.content_security_policy.policy
-        override                = var.custom_headers.response_header_origin_override.override
+  dynamic "security_headers_config" {
+    for_each = local.security_headers ? [1] : []
+    content {
+      dynamic "content_security_policy" {
+        for_each = var.custom_headers.content_security_policy != null ? [1] : []
+        content {
+          content_security_policy = var.custom_headers.content_security_policy.policy
+          override                = var.custom_headers.response_header_origin_override.override
+        }
       }
-    }
 
-    dynamic "content_type_options" {
-      for_each = var.custom_headers.content_type_options != null ? [1] : []
-      content {
-        override = var.custom_headers.content_type_options.override
+      dynamic "content_type_options" {
+        for_each = var.custom_headers.content_type_options != null ? [1] : []
+        content {
+          override = var.custom_headers.content_type_options.override
+        }
       }
-    }
 
-    dynamic "frame_options" {
-      for_each = var.custom_headers.frame_options != null ? [1] : []
-      content {
-        frame_option = var.custom_headers.frame_options.frame_option
-        override     = var.custom_headers.frame_options.override
+      dynamic "frame_options" {
+        for_each = var.custom_headers.frame_options != null ? [1] : []
+        content {
+          frame_option = var.custom_headers.frame_options.frame_option
+          override     = var.custom_headers.frame_options.override
+        }
       }
-    }
 
-    dynamic "referrer_policy" {
-      for_each = var.custom_headers.referrer_policy != null ? [1] : []
-      content {
-        referrer_policy = var.custom_headers.referrer_policy.referrer_policy
-        override        = var.custom_headers.referrer_policy.override
+      dynamic "referrer_policy" {
+        for_each = var.custom_headers.referrer_policy != null ? [1] : []
+        content {
+          referrer_policy = var.custom_headers.referrer_policy.referrer_policy
+          override        = var.custom_headers.referrer_policy.override
+        }
       }
-    }
 
-    dynamic "xss_protection" {
-      for_each = var.custom_headers.xss_protection != null ? [1] : []
-      content {
-        mode_block = var.custom_headers.xss_protection.mode_block
-        protection = var.custom_headers.xss_protection.protection
-        override   = var.custom_headers.xss_protection.override
+      dynamic "xss_protection" {
+        for_each = var.custom_headers.xss_protection != null ? [1] : []
+        content {
+          mode_block = var.custom_headers.xss_protection.mode_block
+          protection = var.custom_headers.xss_protection.protection
+          override   = var.custom_headers.xss_protection.override
+        }
       }
-    }
 
-    dynamic "strict_transport_security" {
-      for_each = var.custom_headers.strict_transport_security != null ? [1] : []
-      content {
-        access_control_max_age_sec = var.custom_headers.strict_transport_security.access_control_max_age_sec
-        include_subdomains         = var.custom_headers.strict_transport_security.include_subdomains
-        preload                    = var.custom_headers.strict_transport_security.preload
-        override                   = var.custom_headers.strict_transport_security.override
+      dynamic "strict_transport_security" {
+        for_each = var.custom_headers.strict_transport_security != null ? [1] : []
+        content {
+          access_control_max_age_sec = var.custom_headers.strict_transport_security.access_control_max_age_sec
+          include_subdomains         = var.custom_headers.strict_transport_security.include_subdomains
+          preload                    = var.custom_headers.strict_transport_security.preload
+          override                   = var.custom_headers.strict_transport_security.override
+        }
       }
     }
   }
