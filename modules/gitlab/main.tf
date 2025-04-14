@@ -48,6 +48,21 @@ resource "gitlab_project_variable" "cloudfront_distribution_id" {
   environment_scope = var.gitlab_environment
 }
 
+resource "gitlab_project_variable" "site_aws_role_arn" {
+  for_each = data.gitlab_project.this
+
+  project = each.value.id
+
+  protected = false
+  masked    = false
+  raw       = true
+
+  key   = "AWS_ROLE_ARN${var.aws_env_vars_suffix}"
+  value = var.aws_role_arn
+
+  environment_scope = var.gitlab_environment
+}
+
 resource "gitlab_project_variable" "site_aws_access_key_id" {
   for_each = data.gitlab_project.this
 

@@ -15,6 +15,10 @@ variable "aws_cloudfront_distribution_id" {
   type = string
 }
 
+variable "aws_role_arn" {
+  type = string
+}
+
 variable "aws_access_key_id" {
   type = string
 }
