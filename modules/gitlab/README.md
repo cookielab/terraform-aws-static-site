@@ -70,6 +70,7 @@ No modules.
 | [gitlab_project_variable.cloudfront_distribution_id](https://registry.terraform.io/providers/gitlabhq/gitlab/latest/docs/resources/project_variable) | resource |
 | [gitlab_project_variable.s3_bucket](https://registry.terraform.io/providers/gitlabhq/gitlab/latest/docs/resources/project_variable) | resource |
 | [gitlab_project_variable.site_aws_access_key_id](https://registry.terraform.io/providers/gitlabhq/gitlab/latest/docs/resources/project_variable) | resource |
+| [gitlab_project_variable.site_aws_role_arn](https://registry.terraform.io/providers/gitlabhq/gitlab/latest/docs/resources/project_variable) | resource |
 | [gitlab_project_variable.site_aws_secret_access_key](https://registry.terraform.io/providers/gitlabhq/gitlab/latest/docs/resources/project_variable) | resource |
 | [gitlab_project.this](https://registry.terraform.io/providers/gitlabhq/gitlab/latest/docs/data-sources/project) | data source |
 
@@ -81,6 +82,7 @@ No modules.
 | <a name="input_aws_cloudfront_distribution_id"></a> [aws\_cloudfront\_distribution\_id](#input\_aws\_cloudfront\_distribution\_id) | n/a | `string` | n/a | yes |
 | <a name="input_aws_default_region"></a> [aws\_default\_region](#input\_aws\_default\_region) | n/a | `string` | n/a | yes |
 | <a name="input_aws_env_vars_suffix"></a> [aws\_env\_vars\_suffix](#input\_aws\_env\_vars\_suffix) | n/a | `string` | `""` | no |
+| <a name="input_aws_role_arn"></a> [aws\_role\_arn](#input\_aws\_role\_arn) | n/a | `string` | n/a | yes |
 | <a name="input_aws_s3_bucket_name"></a> [aws\_s3\_bucket\_name](#input\_aws\_s3\_bucket\_name) | n/a | `string` | n/a | yes |
 | <a name="input_aws_secret_access_key"></a> [aws\_secret\_access\_key](#input\_aws\_secret\_access\_key) | n/a | `string` | n/a | yes |
 | <a name="input_gitlab_environment"></a> [gitlab\_environment](#input\_gitlab\_environment) | n/a | `string` | `"*"` | no |

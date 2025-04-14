@@ -108,6 +108,12 @@ variable "functions" {
   default = {}
 }
 
+variable "enable_deploy_role" {
+  type        = bool
+  default     = false
+  description = "Toggle s3 deploy role creation"
+}
+
 variable "enable_deploy_user" {
   type        = bool
   default     = true
