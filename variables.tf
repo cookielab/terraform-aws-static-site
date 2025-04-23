@@ -111,7 +111,7 @@ variable "functions" {
 variable "enable_deploy_role" {
   type        = bool
   default     = false
-  description = "Toggle s3 deploy role creation"
+  description = "Toggle IAM role creation for S3 deploy & CloudFront invalidation; This requires existing aws_iam_openid_connect_provider matching domain of your gitlab provider"
 }
 
 variable "enable_deploy_user" {

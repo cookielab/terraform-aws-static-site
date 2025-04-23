@@ -143,7 +143,7 @@ module "static-site" {
 | <a name="input_default_ttl"></a> [default\_ttl](#input\_default\_ttl) | Default amount of time that you want objects to stay in a CloudFront cache | `number` | `3600` | no |
 | <a name="input_domain_zone_id"></a> [domain\_zone\_id](#input\_domain\_zone\_id) | The ID of the hosted zone for domain | `string` | n/a | yes |
 | <a name="input_domains"></a> [domains](#input\_domains) | List of domain aliases. You can also specify wildcard eg.: `*.example.com` | `list(string)` | n/a | yes |
-| <a name="input_enable_deploy_role"></a> [enable\_deploy\_role](#input\_enable\_deploy\_role) | Toggle s3 deploy role creation | `bool` | `false` | no |
+| <a name="input_enable_deploy_role"></a> [enable\_deploy\_role](#input\_enable\_deploy\_role) | Toggle IAM role creation for S3 deploy & CloudFront invalidation; This requires existing aws\_iam\_openid\_connect\_provider matching domain of your gitlab provider | `bool` | `false` | no |
 | <a name="input_enable_deploy_user"></a> [enable\_deploy\_user](#input\_enable\_deploy\_user) | Toggle s3 deploy user creation | `bool` | `true` | no |
 | <a name="input_encrypt_with_kms"></a> [encrypt\_with\_kms](#input\_encrypt\_with\_kms) | Enable server side s3 bucket encryption with KMS key | `bool` | `false` | no |
 | <a name="input_extra_domains"></a> [extra\_domains](#input\_extra\_domains) | Map of extra\_domains with domain name and zone\_id | `map(string)` | `{}` | no |
