@@ -23,6 +23,14 @@ variable "aws_access_key_id" {
   type = string
 }
 
+variable "enable_deploy_role" {
+  type = bool
+}
+
+variable "enable_deploy_user" {
+  type = bool
+}
+
 variable "aws_secret_access_key" {
   type      = string
   sensitive = true

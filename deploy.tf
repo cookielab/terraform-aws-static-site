@@ -36,7 +36,6 @@ data "aws_iam_policy_document" "assume_role" {
 resource "aws_iam_role" "deploy" {
   count              = var.enable_deploy_role ? 1 : 0
   assume_role_policy = data.aws_iam_policy_document.assume_role[0].json
-  description        = format("Role used by the GitLab project %s", "GITLAB_PROJECT_PLACEHOLDER")
   name               = "zvirt-${local.main_domain_sanitized}-deploy"
   tags               = var.tags
 }
@@ -99,11 +98,13 @@ module "gitlab" {
   gitlab_project_ids = local.gitlab_project_ids
   gitlab_environment = var.gitlab_environment
 
+  enable_deploy_role             = var.enable_deploy_role
+  enable_deploy_user             = var.enable_deploy_user
   aws_s3_bucket_name             = module.s3_bucket.s3_bucket_id
   aws_cloudfront_distribution_id = aws_cloudfront_distribution.this.id
-  aws_role_arn                   = aws_iam_role.deploy[0].arn
-  aws_access_key_id              = aws_iam_access_key.deploy[0].id
-  aws_secret_access_key          = aws_iam_access_key.deploy[0].secret
+  aws_role_arn                   = var.enable_deploy_role ? aws_iam_role.deploy[0].arn : null
+  aws_access_key_id              = var.enable_deploy_user ? aws_iam_access_key.deploy[0].id : null
+  aws_secret_access_key          = var.enable_deploy_user ? aws_iam_access_key.deploy[0].secret : null
   aws_default_region             = data.aws_region.current.name
   aws_env_vars_suffix            = var.aws_env_vars_suffix
 }

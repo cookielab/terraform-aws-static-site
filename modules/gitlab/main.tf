@@ -49,7 +49,7 @@ resource "gitlab_project_variable" "cloudfront_distribution_id" {
 }
 
 resource "gitlab_project_variable" "site_aws_role_arn" {
-  for_each = data.gitlab_project.this
+  for_each = var.enable_deploy_role ? data.gitlab_project.this : {}
 
   project = each.value.id
 
@@ -64,7 +64,7 @@ resource "gitlab_project_variable" "site_aws_role_arn" {
 }
 
 resource "gitlab_project_variable" "site_aws_access_key_id" {
-  for_each = data.gitlab_project.this
+  for_each = var.enable_deploy_user ? data.gitlab_project.this : {}
 
   project = each.value.id
 
@@ -79,7 +79,7 @@ resource "gitlab_project_variable" "site_aws_access_key_id" {
 }
 
 resource "gitlab_project_variable" "site_aws_secret_access_key" {
-  for_each = data.gitlab_project.this
+  for_each = var.enable_deploy_user ? data.gitlab_project.this : {}
 
   project = each.value.id
 
