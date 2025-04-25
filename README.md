@@ -102,7 +102,7 @@ module "static-site" {
 |------|--------|---------|
 | <a name="module_certificate"></a> [certificate](#module\_certificate) | terraform-aws-modules/acm/aws | 5.1.1 |
 | <a name="module_gitlab"></a> [gitlab](#module\_gitlab) | ./modules/gitlab | n/a |
-| <a name="module_s3_bucket"></a> [s3\_bucket](#module\_s3\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.6.1 |
+| <a name="module_s3_bucket"></a> [s3\_bucket](#module\_s3\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.7.0 |
 
 ## Resources
 

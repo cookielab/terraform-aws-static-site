@@ -85,6 +85,8 @@ No modules.
 | <a name="input_aws_role_arn"></a> [aws\_role\_arn](#input\_aws\_role\_arn) | n/a | `string` | n/a | yes |
 | <a name="input_aws_s3_bucket_name"></a> [aws\_s3\_bucket\_name](#input\_aws\_s3\_bucket\_name) | n/a | `string` | n/a | yes |
 | <a name="input_aws_secret_access_key"></a> [aws\_secret\_access\_key](#input\_aws\_secret\_access\_key) | n/a | `string` | n/a | yes |
+| <a name="input_enable_deploy_role"></a> [enable\_deploy\_role](#input\_enable\_deploy\_role) | n/a | `bool` | n/a | yes |
+| <a name="input_enable_deploy_user"></a> [enable\_deploy\_user](#input\_enable\_deploy\_user) | n/a | `bool` | n/a | yes |
 | <a name="input_gitlab_environment"></a> [gitlab\_environment](#input\_gitlab\_environment) | n/a | `string` | `"*"` | no |
 | <a name="input_gitlab_project_ids"></a> [gitlab\_project\_ids](#input\_gitlab\_project\_ids) | n/a | `list(string)` | n/a | yes |
 
