@@ -1,7 +1,7 @@
 locals {
   gitlab_project_ids    = toset(concat(var.gitlab_project_ids, var.gitlab_project_id != "" ? [var.gitlab_project_id] : []))
-  first_project_web_url = data.gitlab_project.this[element(keys(data.gitlab_project.this), 0)].web_url
-  gitlab_domain         = regex("https://([^/]+)/.*", local.first_project_web_url)[0]
+  first_project_web_url = length(local.gitlab_project_ids) > 0 ? data.gitlab_project.this[element(keys(data.gitlab_project.this), 0)].web_url : ""
+  gitlab_domain         = length(local.gitlab_project_ids) > 0 ? regex("https://([^/]+)/.*", local.first_project_web_url)[0] : ""
 }
 
 data "gitlab_project" "this" {
