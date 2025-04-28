@@ -146,7 +146,7 @@ data "aws_iam_policy_document" "kms_key_policy" {
   dynamic "statement" {
     for_each = var.encrypt_with_kms && var.enable_deploy_role ? [1] : []
     content {
-      sid = "Allow deploy user to use the CMK"
+      sid = "Allow deploy role to use the CMK"
       actions = [
         "kms:GenerateDataKey*",
         "kms:Encrypt",
