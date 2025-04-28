@@ -143,6 +143,25 @@ data "aws_iam_policy_document" "kms_key_policy" {
     }
   }
 
+  dynamic "statement" {
+    for_each = var.encrypt_with_kms && var.enable_deploy_role ? [1] : []
+    content {
+      sid = "Allow deploy user to use the CMK"
+      actions = [
+        "kms:GenerateDataKey*",
+        "kms:Encrypt",
+        "kms:Decrypt"
+      ]
+      resources = ["*"]
+
+      principals {
+        type        = "AWS"
+        identifiers = [aws_iam_role.deploy[0].arn]
+      }
+      effect = "Allow"
+    }
+  }
+
   statement {
     sid    = "Allow CloudFront usage of the key"
     effect = "Allow"
