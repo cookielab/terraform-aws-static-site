@@ -1,3 +1,20 @@
+locals {
+  cicd_variable_flat_list = flatten([
+    for project_id in var.gitlab_project_ids : [
+      for variable in var.extra_gitlab_cicd_variables : {
+        id        = "${project_id}-${variable.key}"
+        project_id = project_id
+        variable   = variable
+      }
+    ]
+  ])
+
+  cicd_variable_flat_map = {
+    for item in local.cicd_variable_flat_list :
+    item.id => merge(item.variable, { project_id = item.project_id })
+  }
+}
+
 data "gitlab_project" "this" {
   for_each = toset(var.gitlab_project_ids)
   id       = each.value
@@ -89,6 +106,21 @@ resource "gitlab_project_variable" "site_aws_secret_access_key" {
 
   key   = "AWS_SECRET_ACCESS_KEY${var.aws_env_vars_suffix}"
   value = var.aws_secret_access_key
+
+  environment_scope = var.gitlab_environment
+}
+
+resource "gitlab_project_variable" "extra" {
+  for_each = local.cicd_variable_flat_map
+
+  project = each.value.project_id
+
+  protected = each.value.protected
+  masked    = each.value.masked
+  raw       = each.value.raw
+
+  key   = each.value.key
+  value = each.value.value
 
   environment_scope = var.gitlab_environment
 }
