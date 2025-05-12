@@ -2,7 +2,7 @@ locals {
   cicd_variable_flat_list = flatten([
     for project_id in var.gitlab_project_ids : [
       for variable in var.extra_gitlab_cicd_variables : {
-        key        = "${project_id}-${variable.key}"
+        id        = "${project_id}-${variable.key}"
         project_id = project_id
         variable   = variable
       }
@@ -11,7 +11,7 @@ locals {
 
   cicd_variable_flat_map = {
     for item in local.cicd_variable_flat_list :
-    item.key => merge(item.variable, { project_id = item.project_id })
+    item.id => merge(item.variable, { project_id = item.project_id })
   }
 }
 
