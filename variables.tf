@@ -246,3 +246,14 @@ variable "custom_headers" {
   default = null
 }
 
+variable "extra_gitlab_cicd_variables" {
+  type = list(object({
+    protected = optional(bool, false)
+    masked    = optional(bool, false)
+    raw       = optional(bool, true)
+    key       = string
+    value     = string
+  }))
+  default     = []
+  description = "List of additional gitlab CI/CD variables"
+}

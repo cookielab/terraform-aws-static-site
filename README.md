@@ -93,8 +93,8 @@ module "static-site" {
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.61.0 |
-| <a name="provider_gitlab"></a> [gitlab](#provider\_gitlab) | 17.2.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.27 |
+| <a name="provider_gitlab"></a> [gitlab](#provider\_gitlab) | >= 15.7, < 18.0 |
 
 ## Modules
 
@@ -102,7 +102,7 @@ module "static-site" {
 |------|--------|---------|
 | <a name="module_certificate"></a> [certificate](#module\_certificate) | terraform-aws-modules/acm/aws | 5.1.1 |
 | <a name="module_gitlab"></a> [gitlab](#module\_gitlab) | ./modules/gitlab | n/a |
-| <a name="module_s3_bucket"></a> [s3\_bucket](#module\_s3\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.7.0 |
+| <a name="module_s3_bucket"></a> [s3\_bucket](#module\_s3\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.8.0 |
 
 ## Resources
 
@@ -147,6 +147,7 @@ module "static-site" {
 | <a name="input_enable_deploy_user"></a> [enable\_deploy\_user](#input\_enable\_deploy\_user) | Toggle s3 deploy user creation | `bool` | `true` | no |
 | <a name="input_encrypt_with_kms"></a> [encrypt\_with\_kms](#input\_encrypt\_with\_kms) | Enable server side s3 bucket encryption with KMS key | `bool` | `false` | no |
 | <a name="input_extra_domains"></a> [extra\_domains](#input\_extra\_domains) | Map of extra\_domains with domain name and zone\_id | `map(string)` | `{}` | no |
+| <a name="input_extra_gitlab_cicd_variables"></a> [extra\_gitlab\_cicd\_variables](#input\_extra\_gitlab\_cicd\_variables) | List of additional gitlab CI/CD variables | <pre>list(object({<br/>    protected = optional(bool, false)<br/>    masked    = optional(bool, false)<br/>    raw       = optional(bool, true)<br/>    key       = string<br/>    value     = string<br/>  }))</pre> | `[]` | no |
 | <a name="input_functions"></a> [functions](#input\_functions) | n/a | <pre>object({<br/>    viewer_request  = optional(string)<br/>    viewer_response = optional(string)<br/>  })</pre> | `{}` | no |
 | <a name="input_gitlab_environment"></a> [gitlab\_environment](#input\_gitlab\_environment) | GitLab environment name | `string` | `"*"` | no |
 | <a name="input_gitlab_project_id"></a> [gitlab\_project\_id](#input\_gitlab\_project\_id) | Deprecated: Use gitlab\_project\_ids instead | `string` | `""` | no |
