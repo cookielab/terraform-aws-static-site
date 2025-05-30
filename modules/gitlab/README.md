@@ -50,13 +50,13 @@ No outputs.
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5, < 2.0 |
-| <a name="requirement_gitlab"></a> [gitlab](#requirement\_gitlab) | >= 15.7, < 18.0 |
+| <a name="requirement_gitlab"></a> [gitlab](#requirement\_gitlab) | >= 15.7, < 19.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_gitlab"></a> [gitlab](#provider\_gitlab) | >= 15.7, < 18.0 |
+| <a name="provider_gitlab"></a> [gitlab](#provider\_gitlab) | >= 15.7, < 19.0 |
 
 ## Modules
 
