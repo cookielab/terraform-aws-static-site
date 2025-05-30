@@ -257,3 +257,16 @@ variable "extra_gitlab_cicd_variables" {
   default     = []
   description = "List of additional gitlab CI/CD variables"
 }
+
+variable "oidc" {
+  description = "List of OIDC providers"
+  type = list(object({
+    application_name = string
+    application_id   = string
+    client_secret    = string
+    auth_url         = string
+    token_url        = string
+    session_druation = optional(number, 12 * 3600)
+  }))
+  default = []
+}

@@ -24,62 +24,6 @@ module "static-site" {
 }
 ```
 
-## Requirements
-
-| Name                                                                     | Version       |
-| ------------------------------------------------------------------------ | ------------- |
-| <a name="requirement_terraform"></a> [terraform](#requirement_terraform) | >= 1.1, < 2.0 |
-| <a name="requirement_aws"></a> [aws](#requirement_aws)                   | ~> 4.32       |
-
-## Providers
-
-| Name                                             | Version |
-| ------------------------------------------------ | ------- |
-| <a name="provider_aws"></a> [aws](#provider_aws) | ~> 4.32 |
-
-## Modules
-
-| Name                                                                 | Source                              | Version |
-| -------------------------------------------------------------------- | ----------------------------------- | ------- |
-| <a name="module_certificate"></a> [certificate](#module_certificate) | terraform-aws-modules/acm/aws       | 4.3.1   |
-| <a name="module_gitlab"></a> [gitlab](#module_gitlab)                | ./modules/gitlab                    | n/a     |
-| <a name="module_s3_bucket"></a> [s3_bucket](#module_s3_bucket)       | terraform-aws-modules/s3-bucket/aws | 3.6.0   |
-
-## Resources
-
-| Name                                                                                                                                                        | Type        |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| [aws_cloudfront_distribution.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution)                     | resource    |
-| [aws_cloudfront_origin_access_identity.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_origin_access_identity) | resource    |
-| [aws_iam_access_key.deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_access_key)                                     | resource    |
-| [aws_iam_user.deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user)                                                 | resource    |
-| [aws_iam_user_policy.deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user_policy)                                   | resource    |
-| [aws_route53_record.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record)                                       | resource    |
-| [aws_iam_policy_document.bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document)                 | data source |
-| [aws_iam_policy_document.deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document)                        | data source |
-
-## Inputs
-
-| Name                                                                                                | Description                                                                | Type           | Default            | Required |
-| --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | -------------- | ------------------ | :------: |
-| <a name="input_cloudfront_price_class"></a> [cloudfront_price_class](#input_cloudfront_price_class) | n/a                                                                        | `string`       | `"PriceClass_100"` |    no    |
-| <a name="input_domain_zone_id"></a> [domain_zone_id](#input_domain_zone_id)                         | The ID of the hosted zone for domain                                       | `string`       | n/a                |   yes    |
-| <a name="input_domains"></a> [domains](#input_domains)                                              | List of domain aliases. You can also specify wildcard eg.: `*.example.com` | `list(string)` | n/a                |   yes    |
-| <a name="input_gitlab_environment"></a> [gitlab_environment](#input_gitlab_environment)             | n/a                                                                        | `string`       | `"*"`              |    no    |
-| <a name="input_gitlab_project_id"></a> [gitlab_project_id](#input_gitlab_project_id)                | n/a                                                                        | `string`       | `null`             |    no    |
-| <a name="input_logs_bucket"></a> [logs_bucket](#input_logs_bucket)                                  | n/a                                                                        | `string`       | `null`             |    no    |
-| <a name="input_s3_bucket_name"></a> [s3_bucket_name](#input_s3_bucket_name)                         | n/a                                                                        | `string`       | n/a                |   yes    |
-| <a name="input_tags"></a> [tags](#input_tags)                                                       | n/a                                                                        | `map(string)`  | `{}`               |    no    |
-
-## Outputs
-
-| Name                                                                                                                          | Description |
-| ----------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| <a name="output_aws_access_key_id"></a> [aws_access_key_id](#output_aws_access_key_id)                                        | n/a         |
-| <a name="output_aws_cloudfront_distribution_id"></a> [aws_cloudfront_distribution_id](#output_aws_cloudfront_distribution_id) | n/a         |
-| <a name="output_aws_s3_bucket_name"></a> [aws_s3_bucket_name](#output_aws_s3_bucket_name)                                     | n/a         |
-| <a name="output_aws_secret_access_key"></a> [aws_secret_access_key](#output_aws_secret_access_key)                            | n/a         |
-
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -87,30 +31,33 @@ module "static-site" {
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5, < 2.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.27 |
-| <a name="requirement_gitlab"></a> [gitlab](#requirement\_gitlab) | >= 15.7, < 18.0 |
+| <a name="requirement_gitlab"></a> [gitlab](#requirement\_gitlab) | >= 15.7, < 19.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.27 |
-| <a name="provider_gitlab"></a> [gitlab](#provider\_gitlab) | >= 15.7, < 18.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.61.0 |
+| <a name="provider_gitlab"></a> [gitlab](#provider\_gitlab) | 17.2.0 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_certificate"></a> [certificate](#module\_certificate) | terraform-aws-modules/acm/aws | 5.1.1 |
+| <a name="module_certificate"></a> [certificate](#module\_certificate) | terraform-aws-modules/acm/aws | 5.2.0 |
 | <a name="module_gitlab"></a> [gitlab](#module\_gitlab) | ./modules/gitlab | n/a |
-| <a name="module_s3_bucket"></a> [s3\_bucket](#module\_s3\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.8.0 |
+| <a name="module_oidc"></a> [oidc](#module\_oidc) | ./modules/oidc | n/a |
+| <a name="module_s3_bucket"></a> [s3\_bucket](#module\_s3\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.11.0 |
 
 ## Resources
 
 | Name | Type |
 |------|------|
+| [aws_cloudfront_cache_policy.oidc](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_cache_policy) | resource |
 | [aws_cloudfront_distribution.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution) | resource |
 | [aws_cloudfront_origin_access_control.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_origin_access_control) | resource |
 | [aws_cloudfront_origin_access_identity.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_origin_access_identity) | resource |
+| [aws_cloudfront_origin_request_policy.oidc](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_origin_request_policy) | resource |
 | [aws_cloudfront_response_headers_policy.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_response_headers_policy) | resource |
 | [aws_iam_access_key.deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_access_key) | resource |
 | [aws_iam_role.deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
@@ -158,6 +105,7 @@ module "static-site" {
 | <a name="input_logs_bucket_domain_name"></a> [logs\_bucket\_domain\_name](#input\_logs\_bucket\_domain\_name) | n/a | `string` | `null` | no |
 | <a name="input_max_ttl"></a> [max\_ttl](#input\_max\_ttl) | Maximum amount of time that you want objects to stay in a CloudFront cache | `number` | `86400` | no |
 | <a name="input_min_ttl"></a> [min\_ttl](#input\_min\_ttl) | Minimum amount of time that you want objects to stay in a CloudFront cache | `number` | `0` | no |
+| <a name="input_oidc"></a> [oidc](#input\_oidc) | List of OIDC providers | <pre>list(object({<br/>    application_name = string<br/>    application_id   = string<br/>    client_secret    = string<br/>    auth_url         = string<br/>    token_url        = string<br/>    session_druation = optional(number, 12 * 3600)<br/>  }))</pre> | `[]` | no |
 | <a name="input_origin_path"></a> [origin\_path](#input\_origin\_path) | Cloudfront origin path | `string` | `""` | no |
 | <a name="input_override_status_code_403"></a> [override\_status\_code\_403](#input\_override\_status\_code\_403) | Override status code for 403 error | `number` | `403` | no |
 | <a name="input_override_status_code_404"></a> [override\_status\_code\_404](#input\_override\_status\_code\_404) | Override status code for 404 error | `number` | `200` | no |
@@ -182,5 +130,6 @@ module "static-site" {
 | <a name="output_aws_s3_bucket_name"></a> [aws\_s3\_bucket\_name](#output\_aws\_s3\_bucket\_name) | n/a |
 | <a name="output_aws_s3_bucket_regional_domain_name"></a> [aws\_s3\_bucket\_regional\_domain\_name](#output\_aws\_s3\_bucket\_regional\_domain\_name) | n/a |
 | <a name="output_aws_secret_access_key"></a> [aws\_secret\_access\_key](#output\_aws\_secret\_access\_key) | n/a |
+| <a name="output_oidc_callback_url"></a> [oidc\_callback\_url](#output\_oidc\_callback\_url) | n/a |
 | <a name="output_s3_kms_key_arn"></a> [s3\_kms\_key\_arn](#output\_s3\_kms\_key\_arn) | n/a |
 <!-- END_TF_DOCS -->
