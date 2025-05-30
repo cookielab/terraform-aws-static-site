@@ -413,7 +413,7 @@ resource "aws_cloudfront_distribution" "this" {
 
       compress = true
 
-      cache_policy_id = aws_cloudfront_cache_policy.oidc[0].id
+      cache_policy_id          = aws_cloudfront_cache_policy.oidc[0].id
       origin_request_policy_id = aws_cloudfront_origin_request_policy.oidc[0].id
     }
   }
