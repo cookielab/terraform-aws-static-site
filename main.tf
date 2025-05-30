@@ -232,6 +232,51 @@ data "aws_cloudfront_cache_policy" "managed_caching_disabled" {
   name = "Managed-CachingDisabled"
 }
 
+resource "aws_cloudfront_cache_policy" "oidc" {
+  count = length(var.oidc) == 0 ? 0 : 1
+
+  name        = "no-cache-oidc-policy"
+  comment     = "Disable caching for OIDC"
+  default_ttl = 0
+  min_ttl     = 0
+  max_ttl     = 0
+
+  parameters_in_cache_key_and_forwarded_to_origin {
+    cookies_config {
+      cookie_behavior = "none"
+    }
+
+    headers_config {
+      header_behavior = "none"
+    }
+
+    query_strings_config {
+      query_string_behavior = "none"
+    }
+
+    #enable_accept_encoding_gzip = true
+  }
+}
+
+resource "aws_cloudfront_origin_request_policy" "oidc" {
+  count = length(var.oidc) == 0 ? 0 : 1
+
+  name    = "oidc-origin-policy"
+  comment = "Forward all cookies and query strings for OIDC"
+
+  cookies_config {
+    cookie_behavior = "all"
+  }
+
+  headers_config {
+    header_behavior = "none"
+  }
+
+  query_strings_config {
+    query_string_behavior = "all"
+  }
+}
+
 resource "aws_cloudfront_distribution" "this" {
   comment = local.main_domain
 
@@ -241,6 +286,22 @@ resource "aws_cloudfront_distribution" "this" {
     origin_id                = var.s3_bucket_name
     origin_access_control_id = aws_cloudfront_origin_access_control.this.id
     origin_path              = var.origin_path
+  }
+
+  dynamic "origin" {
+    for_each = length(var.oidc) == 0 ? [] : [1]
+
+    content {
+      domain_name = split("/", module.oidc.oidc_callback_url_base)[2]
+      origin_id   = "api-gateway-origin"
+
+      custom_origin_config {
+        http_port              = 80
+        https_port             = 443
+        origin_protocol_policy = "https-only"
+        origin_ssl_protocols   = ["TLSv1.2"]
+      }
+    }
   }
 
   dynamic "origin" {
@@ -265,18 +326,26 @@ resource "aws_cloudfront_distribution" "this" {
   is_ipv6_enabled     = true
   default_root_object = "index.html"
 
-  custom_error_response {
-    error_caching_min_ttl = 3000
-    error_code            = 404
-    response_code         = var.override_status_code_404
-    response_page_path    = "/index.html"
-  }
+  dynamic "custom_error_response" {
+    for_each = length(var.oidc) > 0 ? [] : [
+      {
+        error_code         = 404
+        response_code      = var.override_status_code_404
+        response_page_path = "/index.html"
+      },
+      {
+        error_code         = 403
+        response_code      = var.override_status_code_403
+        response_page_path = "/index.html"
+      }
+    ]
 
-  custom_error_response {
-    error_caching_min_ttl = 3000
-    error_code            = 403
-    response_code         = var.override_status_code_403
-    response_page_path    = "/index.html"
+    content {
+      error_caching_min_ttl = 3000
+      error_code            = custom_error_response.value.error_code
+      response_code         = custom_error_response.value.response_code
+      response_page_path    = custom_error_response.value.response_page_path
+    }
   }
 
   default_cache_behavior {
@@ -289,7 +358,7 @@ resource "aws_cloudfront_distribution" "this" {
       query_string = false
 
       cookies {
-        forward = "none"
+        forward = length(var.oidc) == 0 ? "none" : "all"
       }
     }
 
@@ -297,6 +366,15 @@ resource "aws_cloudfront_distribution" "this" {
     min_ttl                = var.min_ttl
     default_ttl            = var.default_ttl
     max_ttl                = var.max_ttl
+
+    dynamic "lambda_function_association" {
+      for_each = module.oidc.lambda_edge_function_arn != null ? [module.oidc.lambda_edge_function_arn] : []
+      content {
+        event_type   = "viewer-request"
+        lambda_arn   = lambda_function_association.value
+        include_body = false
+      }
+    }
 
     dynamic "function_association" {
       for_each = concat(
@@ -318,6 +396,25 @@ resource "aws_cloudfront_distribution" "this" {
         event_type   = function_association.value.event_type
         function_arn = function_association.value.function_arn
       }
+    }
+  }
+
+  dynamic "ordered_cache_behavior" {
+    for_each = length(var.oidc) == 0 ? [] : [1]
+
+    content {
+      path_pattern     = "/callback*"
+      target_origin_id = "api-gateway-origin"
+
+      allowed_methods = ["GET", "HEAD", "OPTIONS"]
+      cached_methods  = ["GET", "HEAD"]
+
+      viewer_protocol_policy = "redirect-to-https"
+
+      compress = true
+
+      cache_policy_id          = aws_cloudfront_cache_policy.oidc[0].id
+      origin_request_policy_id = aws_cloudfront_origin_request_policy.oidc[0].id
     }
   }
 
