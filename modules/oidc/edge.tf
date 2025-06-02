@@ -21,7 +21,7 @@ resource "aws_lambda_function" "edge_auth" {
   function_name    = "${var.project_name}-oidc-auth"
   role             = aws_iam_role.lambda_oidc[0].arn
   handler          = "index.handler"
-  runtime          = "nodejs18.x"
+  runtime          = "nodejs22.x"
   filename         = data.archive_file.edge_lambda_zip[0].output_path
   source_code_hash = data.archive_file.edge_lambda_zip[0].output_base64sha256
   publish          = true
