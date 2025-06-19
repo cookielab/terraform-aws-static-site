@@ -235,7 +235,7 @@ data "aws_cloudfront_cache_policy" "managed_caching_disabled" {
 resource "aws_cloudfront_cache_policy" "oidc" {
   count = length(var.oidc) == 0 ? 0 : 1
 
-  name        = "no-cache-oidc-policy"
+  name        = "no-cache-oidc-policy_${replace(local.main_domain_sanitized, ".", "-")}"
   comment     = "Disable caching for OIDC"
   default_ttl = 0
   min_ttl     = 0
@@ -261,7 +261,7 @@ resource "aws_cloudfront_cache_policy" "oidc" {
 resource "aws_cloudfront_origin_request_policy" "oidc" {
   count = length(var.oidc) == 0 ? 0 : 1
 
-  name    = "oidc-origin-policy"
+  name    = "oidc-origin-policy_${replace(local.main_domain_sanitized, ".", "-")}"
   comment = "Forward all cookies and query strings for OIDC"
 
   cookies_config {
