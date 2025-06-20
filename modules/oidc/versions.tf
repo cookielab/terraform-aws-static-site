@@ -9,11 +9,11 @@ terraform {
     aws = {
       source                = "hashicorp/aws"
       version               = "~> 5.27"
-      configuration_aliases = [aws, aws.us_east_1]
+      configuration_aliases = [aws.us_east_1]
     }
     random = {
       source  = "hashicorp/random"
-      version = "3.7.2"
+      version = ">= 3.7.0"
     }
   }
 }
