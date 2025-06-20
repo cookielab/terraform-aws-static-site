@@ -8,7 +8,7 @@ locals {
       auth_url             = cfg.auth_url
       token_url            = cfg.token_url
       redirect_uri         = "https://${var.application_domain}/callback?auth=${cfg.application_name}"
-      session_secret       = random_string.session_secret.result
+      session_secret       = random_string.session_secret[0].result
       redirect_after_login = "https://${var.application_domain}"
       session_duration     = cfg.session_duration
     }
@@ -18,6 +18,7 @@ locals {
 }
 
 resource "random_string" "session_secret" {
+  count = local.enabled ? 1 : 0
   length  = 64
   special = true
 }
