@@ -26,11 +26,5 @@ resource "aws_lambda_function" "edge_auth" {
   source_code_hash = data.archive_file.edge_lambda_zip[0].output_base64sha256
   publish          = true
 
-  lifecycle {
-    ignore_changes = [
-      source_code_hash,
-    ]
-  }
-
   tags = var.tags
 }
