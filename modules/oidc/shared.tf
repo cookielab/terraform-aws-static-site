@@ -1,8 +1,9 @@
 locals {
   enabled = length(var.oidc) > 0
 
-  oidc_config = {
-    for cfg in var.oidc : cfg.application_name => {
+  oidc_config = [
+    for cfg in var.oidc : {
+      application_name     = cfg.application_name
       client_id            = cfg.application_id
       client_secret        = cfg.client_secret
       auth_url             = cfg.auth_url
@@ -12,13 +13,13 @@ locals {
       redirect_after_login = "https://${var.application_domain}"
       session_duration     = cfg.session_duration
     }
-  }
+  ]
 
   oidc_config_json = local.enabled ? jsonencode(local.oidc_config) : null
 }
 
 resource "random_string" "session_secret" {
-  count = local.enabled ? 1 : 0
+  count   = local.enabled ? 1 : 0
   length  = 64
   special = true
 }

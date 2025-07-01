@@ -3,7 +3,9 @@
 const crypto = require('crypto');
 const querystring = require('querystring');
 
-const config = require('./config.json');
+// Load config as list and convert to map by application_name
+const configList = require('./config.json');
+const config = Object.fromEntries(configList.map(cfg => [cfg.application_name, cfg]));
 
 exports.handler = (event, context, callback) => {
   try {
