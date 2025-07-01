@@ -4,7 +4,8 @@ const https = require('https');
 const querystring = require('querystring');
 const crypto = require('crypto');
 
-const config = JSON.parse(process.env.OIDC_CONFIG_JSON || '{}');
+const configList = JSON.parse(process.env.OIDC_CONFIG_JSON || '[]');
+const config = Object.fromEntries(configList.map(cfg => [cfg.application_name, cfg]));
 
 exports.handler = (event, context, callback) => {
   //console.log('Callback Lambda - Received event:', JSON.stringify(event, null, 2));
