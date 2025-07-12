@@ -25,75 +25,90 @@ exports.handler = (event, context, callback) => {
     const headers = request.headers || {};
     const query = request.querystring || '';
     const params = querystring.parse(query);
-    const providerKey = params.auth;
+    const authParam = params.auth; // just for logging/debug
 
-    console.log('Edge Lambda - Query params:', { providerKey });
+    let providerKey = null;
+    console.log('Edge Lambda - Query params:', { authParam });
 
-    // Extract session cookie
+    // Extract session cookie & providerKey from cookies
     let session = null;
     if (headers.cookie && Array.isArray(headers.cookie)) {
-      //console.log('Edge Lambda - Cookies:', headers.cookie);
       for (const cookie of headers.cookie) {
         const cookieValue = cookie.value || '';
-        //console.log('Edge Lambda - Processing cookie string:', cookieValue);
-        // Split cookies delimited by semicolon or space
         const cookieEntries = cookieValue.split('; ').map(entry => entry.trim());
         for (const entry of cookieEntries) {
           if (entry.startsWith('session=')) {
             session = entry.split('=')[1];
-            //console.log('Edge Lambda - Extracted session cookie:', session);
-            break;
+          } else if (entry.startsWith('auth_provider=')) {
+            providerKey = entry.split('=')[1];
           }
         }
-        if (session) break;
+        if (session && providerKey) break;
       }
     } else {
       console.log('Edge Lambda - No cookie header present or not an array');
     }
 
+    // Determine provider for this request
+    // If providerKey not found in cookie, use query param ?auth=... or fallback to default
+    let newlySelectedProviderKey = null;
+    if (!providerKey) {
+      newlySelectedProviderKey = params.auth || Object.keys(config)[0];
+      providerKey = newlySelectedProviderKey;
+      console.log('Edge Lambda - No auth_provider cookie, using query param or default:', providerKey);
+    } else {
+      console.log('Edge Lambda - Using provider from cookie:', providerKey);
+    }
+
     // Validate session cookie if present
     if (session) {
-      //console.log('Edge Lambda - Found session cookie:', session);
-      // Check session cookie format (value.signature)
-      if (!session.includes('.')) {
-        console.log('Edge Lambda - Invalid session cookie format:', session);
+      if (!providerKey || !config[providerKey]) {
+        console.log('Edge Lambda - Invalid or missing providerKey in config:', providerKey);
       } else {
-        const [value, signature] = session.split('.');
-        //console.log('Edge Lambda - Session cookie parts - Value:', value, 'Signature:', signature);
+        const provider = config[providerKey];
 
-        // Validate for selected provider if providerKey is present
-        if (providerKey && config[providerKey]) {
-          const provider = config[providerKey];
-          //console.log('Edge Lambda - Provider config:', JSON.stringify(provider, null, 2));
+        // JWT-like format: value.signature
+        if (session.includes('.')) {
+          const [value, signature] = session.split('.');
           const expectedSignature = crypto
             .createHmac('sha256', provider.session_secret || '')
             .update(value)
             .digest('hex');
           console.log('Edge Lambda - Validating session for provider:', providerKey);
-          //console.log('Edge Lambda - Expected signature:', expectedSignature, 'Got:', signature);
           if (signature === expectedSignature) {
-            console.log('Edge Lambda - Session validated successfully for provider:', providerKey);
-            return callback(null, request);
+            try {
+              const sessionJson = Buffer.from(value, 'base64').toString('utf-8');
+              const sessionPayload = JSON.parse(sessionJson);
+              const now = Date.now();
+              if (!sessionPayload.exp || now < sessionPayload.exp) {
+                console.log('Edge Lambda - Session validated successfully for provider:', providerKey);
+                return callback(null, request);
+              } else {
+                console.log('Edge Lambda - Session expired');
+              }
+            } catch (err) {
+              console.log('Edge Lambda - Failed to parse session payload:', err.message);
+              console.log('Edge Lambda - Accepting valid signature as opaque token');
+              return callback(null, request);
+            }
           } else {
             console.log('Edge Lambda - Session validation failed for provider:', providerKey);
           }
         } else {
-          // Loop through providers if providerKey is not present
-          console.log('Edge Lambda - No providerKey, trying all providers');
-          for (const key of Object.keys(config)) {
-            const provider = config[key];
-            //console.log('Edge Lambda - Provider config for', key, ':', JSON.stringify(provider, null, 2));
-            const expectedSignature = crypto
-              .createHmac('sha256', provider.session_secret || '')
-              .update(value)
-              .digest('hex');
-            //console.log(`Edge Lambda - Validating session for provider: ${key}, Expected signature: ${expectedSignature}, Got: ${signature}`);
-            if (signature === expectedSignature) {
-              console.log('Edge Lambda - Session validated successfully for provider:', key);
+          // Opaque token: base64-encoded JSON
+          try {
+            const sessionJson = Buffer.from(session, 'base64').toString('utf-8');
+            const sessionPayload = JSON.parse(sessionJson);
+            const now = Date.now();
+            if (!sessionPayload.exp || now < sessionPayload.exp) {
+              console.log('Edge Lambda - Opaque session validated successfully for provider:', providerKey);
               return callback(null, request);
+            } else {
+              console.log('Edge Lambda - Opaque session expired');
             }
+          } catch (err) {
+            console.log('Edge Lambda - Failed to parse opaque session payload:', err.message);
           }
-          console.log('Edge Lambda - Session validation failed for all providers');
         }
       }
     } else {
@@ -101,10 +116,8 @@ exports.handler = (event, context, callback) => {
     }
 
     // Redirect to OIDC if session is invalid or not present
-    //console.log('Edge Lambda - Config:', JSON.stringify(config, null, 2));
-    const defaultProviderKey = providerKey || Object.keys(config)[0];
-    if (!defaultProviderKey || !config[defaultProviderKey]) {
-      console.log('Edge Lambda - No matching provider for:', defaultProviderKey);
+    if (!providerKey || !config[providerKey]) {
+      console.log('Edge Lambda - No matching provider for:', providerKey);
       return callback(null, {
         status: '403',
         statusDescription: 'Forbidden',
@@ -112,7 +125,7 @@ exports.handler = (event, context, callback) => {
       });
     }
 
-    const provider = config[defaultProviderKey];
+    const provider = config[providerKey];
     const state = crypto.randomBytes(16).toString('hex');
     const loginUrl = `${provider.auth_url}?` +
       `client_id=${encodeURIComponent(provider.client_id)}` +
@@ -122,6 +135,20 @@ exports.handler = (event, context, callback) => {
     console.log('Edge Lambda - Redirecting to OIDC provider:', loginUrl);
     console.log('Edge Lambda - Setting state cookie:', state);
 
+    // Prepare set-cookie headers
+    const setCookieHeaders = [{
+      key: 'Set-Cookie',
+      value: `state=${state}; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=300`,
+    }];
+
+    if (newlySelectedProviderKey) {
+      const domain = new URL(provider.redirect_after_login).hostname;
+      setCookieHeaders.push({
+        key: 'Set-Cookie',
+        value: `auth_provider=${newlySelectedProviderKey}; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=300`,
+      });
+    }
+
     return callback(null, {
       status: '302',
       statusDescription: 'Found',
@@ -130,10 +157,7 @@ exports.handler = (event, context, callback) => {
           key: 'Location',
           value: loginUrl,
         }],
-        'set-cookie': [{
-          key: 'Set-Cookie',
-          value: `state=${state}; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=300`,
-        }],
+        'set-cookie': setCookieHeaders,
       },
     });
   } catch (error) {

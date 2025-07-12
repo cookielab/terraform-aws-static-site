@@ -14,13 +14,22 @@ exports.handler = (event, context, callback) => {
   const query = event.queryStringParameters || {};
   const headers = event.headers || {};
   const cookies = event.cookies || [];
-  const providerKey = query.auth;
+  let providerKey = query.auth;
   const code = query.code;
   const state = query.state;
 
   //console.log('Callback Lambda - Query params:', { providerKey, code, state });
   //console.log('Callback Lambda - Headers:', JSON.stringify(headers, null, 2));
   //console.log('Callback Lambda - Cookies from event.cookies:', cookies);
+
+  // Try to read providerKey from cookie if not in query
+  if (!providerKey && cookies.length > 0) {
+    const authCookie = cookies.find(c => c.startsWith('auth_provider='));
+    if (authCookie) {
+      providerKey = authCookie.split('=')[1];
+      console.log('Callback Lambda - Retrieved providerKey from cookie:', providerKey);
+    }
+  }
 
   if (!providerKey || !config[providerKey]) {
     console.log('Callback Lambda - No matching provider for:', providerKey);
@@ -105,12 +114,17 @@ exports.handler = (event, context, callback) => {
         // Create a session cookie
         const redirectUrl = new URL(provider.redirect_after_login);
         const cookieDomain = redirectUrl.hostname;
-        const sessionValue = json.access_token;
+        const now = Date.now();
+        const sessionPayload = {
+          access_token: json.access_token,
+          exp: now + (provider.session_duration * 1000),
+        };
+        const payload = Buffer.from(JSON.stringify(sessionPayload)).toString('base64');
         const signature = crypto
           .createHmac('sha256', provider.session_secret)
-          .update(sessionValue)
+          .update(payload)
           .digest('hex');
-        const sessionCookie = `session=${sessionValue}.${signature}; Domain=${cookieDomain}; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=${provider.session_duration}`;
+        const sessionCookie = `session=${payload}.${signature}; Domain=${cookieDomain}; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=${provider.session_duration}`;
 
         //console.log('Callback Lambda - Setting session cookie:', sessionCookie);
         return callback(null, {
@@ -142,3 +156,4 @@ exports.handler = (event, context, callback) => {
   tokenRequest.write(tokenData);
   tokenRequest.end();
 };
+
