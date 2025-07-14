@@ -8,7 +8,7 @@ locals {
       client_secret        = cfg.client_secret
       auth_url             = cfg.auth_url
       token_url            = cfg.token_url
-      redirect_uri         = "https://${var.application_domain}/callback?auth=${cfg.application_name}"
+      redirect_uri         = "https://${var.application_domain}/callback"
       session_secret       = random_string.session_secret[0].result
       redirect_after_login = "https://${var.application_domain}"
       session_duration     = cfg.session_duration
