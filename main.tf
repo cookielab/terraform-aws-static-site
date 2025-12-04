@@ -524,7 +524,7 @@ resource "aws_cloudfront_response_headers_policy" "this" {
         for_each = var.custom_headers.content_security_policy != null ? [1] : []
         content {
           content_security_policy = var.custom_headers.content_security_policy.policy
-          override                = var.custom_headers.response_header_origin_override.override
+          override                = var.custom_headers.content_security_policy.override
         }
       }
 

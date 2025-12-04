@@ -228,9 +228,9 @@ variable "custom_headers" {
       override   = optional(bool, true)
     }), null)
     content_security_policy = optional(object({
-      use                     = optional(bool, false)
-      content_security_policy = string
-      override                = optional(bool, true)
+      use      = optional(bool, false)
+      policy   = string
+      override = optional(bool, true)
     }), null)
     strict_transport_security = optional(object({
       use                        = optional(bool, false)
