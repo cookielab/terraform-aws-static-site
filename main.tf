@@ -572,13 +572,16 @@ resource "aws_cloudfront_response_headers_policy" "this" {
     }
   }
 
-  custom_headers_config {
-    dynamic "items" {
-      for_each = var.custom_headers.headers != null ? var.custom_headers.headers : {}
-      content {
-        header   = items.key
-        value    = items.value.value
-        override = items.value.override
+  dynamic "custom_headers_config" {
+    for_each = var.custom_headers.headers != null && var.custom_headers.headers != {} ? [1] : []
+    content {
+      dynamic "items" {
+        for_each = var.custom_headers.headers != null ? var.custom_headers.headers : {}
+        content {
+          header   = items.key
+          value    = items.value.value
+          override = items.value.override
+        }
       }
     }
   }
