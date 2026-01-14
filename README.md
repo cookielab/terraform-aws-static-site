@@ -126,14 +126,15 @@ module "static-site" {
 
 | Name | Description |
 | ---- | ----------- |
-| <a name="output_aws_access_key_id"></a> [aws\_access\_key\_id](#output\_aws\_access\_key\_id) | n/a |
-| <a name="output_aws_cloudfront_distribution_id"></a> [aws\_cloudfront\_distribution\_id](#output\_aws\_cloudfront\_distribution\_id) | n/a |
-| <a name="output_aws_s3_bucket_arn"></a> [aws\_s3\_bucket\_arn](#output\_aws\_s3\_bucket\_arn) | n/a |
-| <a name="output_aws_s3_bucket_name"></a> [aws\_s3\_bucket\_name](#output\_aws\_s3\_bucket\_name) | n/a |
-| <a name="output_aws_s3_bucket_regional_domain_name"></a> [aws\_s3\_bucket\_regional\_domain\_name](#output\_aws\_s3\_bucket\_regional\_domain\_name) | n/a |
-| <a name="output_aws_secret_access_key"></a> [aws\_secret\_access\_key](#output\_aws\_secret\_access\_key) | n/a |
-| <a name="output_deploy_instance_profile"></a> [deploy\_instance\_profile](#output\_deploy\_instance\_profile) | n/a |
-| <a name="output_deploy_role_arn"></a> [deploy\_role\_arn](#output\_deploy\_role\_arn) | n/a |
-| <a name="output_oidc_callback_url"></a> [oidc\_callback\_url](#output\_oidc\_callback\_url) | n/a |
-| <a name="output_s3_kms_key_arn"></a> [s3\_kms\_key\_arn](#output\_s3\_kms\_key\_arn) | n/a |
+| <a name="output_aws_access_key_id"></a> [aws\_access\_key\_id](#output\_aws\_access\_key\_id) | AWS\_ACCESS\_KEY\_ID of the deploy user |
+| <a name="output_aws_cloudfront_distribution_id"></a> [aws\_cloudfront\_distribution\_id](#output\_aws\_cloudfront\_distribution\_id) | CloudFront distribution ID |
+| <a name="output_aws_s3_bucket_arn"></a> [aws\_s3\_bucket\_arn](#output\_aws\_s3\_bucket\_arn) | ARN of the S3 bucket with the static site assets |
+| <a name="output_aws_s3_bucket_name"></a> [aws\_s3\_bucket\_name](#output\_aws\_s3\_bucket\_name) | S3 bucket name with the static site assets |
+| <a name="output_aws_s3_bucket_regional_domain_name"></a> [aws\_s3\_bucket\_regional\_domain\_name](#output\_aws\_s3\_bucket\_regional\_domain\_name) | Regional domain name of the S3 bucket with the static site assets |
+| <a name="output_aws_secret_access_key"></a> [aws\_secret\_access\_key](#output\_aws\_secret\_access\_key) | AWS\_SECRET\_ACCESS\_KEY of the deploy user |
+| <a name="output_deploy_instance_profile"></a> [deploy\_instance\_profile](#output\_deploy\_instance\_profile) | Instance profile name with the deploy role attached |
+| <a name="output_deploy_role_arn"></a> [deploy\_role\_arn](#output\_deploy\_role\_arn) | ARN of the deploy IAM role |
+| <a name="output_moved_blocks"></a> [moved\_blocks](#output\_moved\_blocks) | Generated moved blocks for the `gitlab_project_variables` and `aws_route53_record` |
+| <a name="output_oidc_callback_url"></a> [oidc\_callback\_url](#output\_oidc\_callback\_url) | OIDC callback URL for Redirect URI in the OIDC application |
+| <a name="output_s3_kms_key_arn"></a> [s3\_kms\_key\_arn](#output\_s3\_kms\_key\_arn) | ARN of the KMS key used for the encryption of the objects in the S3 bucket with the static site assets |
 <!-- END_TF_DOCS -->
