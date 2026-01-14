@@ -9,12 +9,12 @@ data "gitlab_project" "this" {
 }
 
 data "aws_iam_openid_connect_provider" "gitlab" {
-  count = var.enable_deploy_role ? 1 : 0
+  count = var.enable_deploy_role && length(var.gitlab_project_ids) > 0 ? 1 : 0
   url   = format("https://%s", local.gitlab_domain)
 }
 
-data "aws_iam_policy_document" "assume_role" {
-  count = var.enable_deploy_role ? 1 : 0
+data "aws_iam_policy_document" "assume_role_web_identity" {
+  count = var.enable_deploy_role && length(var.gitlab_project_ids) > 0 ? 1 : 0
   statement {
     actions = ["sts:AssumeRoleWithWebIdentity"]
     effect  = "Allow"
@@ -28,6 +28,19 @@ data "aws_iam_policy_document" "assume_role" {
     principals {
       identifiers = [data.aws_iam_openid_connect_provider.gitlab[0].arn]
       type        = "Federated"
+    }
+  }
+}
+
+data "aws_iam_policy_document" "assume_role_ec2" {
+  count = var.create_instance_profile ? 1 : 0
+  statement {
+    actions = ["sts:AssumeRole"]
+    effect  = "Allow"
+
+    principals {
+      identifiers = ["ec2.amazonaws.com"]
+      type        = "Service"
     }
   }
 }
@@ -60,6 +73,14 @@ data "aws_iam_policy_document" "deploy" {
   }
 }
 
+data "aws_iam_policy_document" "assume_role" {
+  count = var.enable_deploy_role ? 1 : 0
+  source_policy_documents = concat(
+    data.aws_iam_policy_document.assume_role_web_identity[*].json,
+    data.aws_iam_policy_document.assume_role_ec2[*].json,
+  )
+}
+
 resource "aws_iam_role" "deploy" {
   count              = var.enable_deploy_role ? 1 : 0
   assume_role_policy = data.aws_iam_policy_document.assume_role[0].json
@@ -72,6 +93,12 @@ resource "aws_iam_role_policy" "deploy" {
   name   = "S3Deploy-CFInvalidate"
   role   = aws_iam_role.deploy[0].id
   policy = data.aws_iam_policy_document.deploy[0].json
+}
+
+resource "aws_iam_instance_profile" "deploy" {
+  count = var.create_instance_profile ? 1 : 0
+  name  = aws_iam_role.deploy[0].name
+  role  = aws_iam_role.deploy[0].name
 }
 
 resource "aws_iam_user" "deploy" {

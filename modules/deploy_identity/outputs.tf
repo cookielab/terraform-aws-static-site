@@ -10,6 +10,11 @@ output "deploy_user_arn" {
   sensitive   = true
 }
 
+output "deploy_instance_profile" {
+  description = "Instance profile name with the deploy role attached"
+  value       = var.create_instance_profile ? aws_iam_instance_profile.deploy[0].arn : null
+}
+
 output "aws_access_key_id" {
   description = "AWS_ACCESS_KEY_ID of the deploy user"
   value       = var.enable_deploy_user ? aws_iam_access_key.deploy[0].id : null
