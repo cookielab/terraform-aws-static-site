@@ -8,7 +8,7 @@ terraform {
     }
     aws = {
       source                = "hashicorp/aws"
-      version               = ">= 5.27"
+      version               = "~> 6"
       configuration_aliases = [aws.us_east_1]
     }
     random = {
