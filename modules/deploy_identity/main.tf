@@ -74,6 +74,12 @@ resource "aws_iam_role_policy" "deploy" {
   policy = data.aws_iam_policy_document.deploy[0].json
 }
 
+resource "aws_iam_instance_profile" "deploy" {
+  count = var.create_instance_profile ? 1 : 0
+  name  = aws_iam_role.deploy[0].name
+  role  = aws_iam_role.deploy[0].name
+}
+
 resource "aws_iam_user" "deploy" {
   count = var.enable_deploy_user ? 1 : 0
   name  = "zvirt-${var.identity_base_name}-deploy"

@@ -31,6 +31,11 @@ variable "enable_deploy_user" {
   default     = true
 }
 
+variable "create_instance_profile" {
+  type        = bool
+  default     = false
+  description = "Create instance profile for EC2"
+}
 
 variable "tags" {
   description = "Map of tags to be set on resources"

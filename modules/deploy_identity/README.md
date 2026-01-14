@@ -2,7 +2,7 @@
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5, < 2.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 6 |
 | <a name="requirement_gitlab"></a> [gitlab](#requirement\_gitlab) | >= 18.0, < 19.0 |
@@ -10,7 +10,7 @@
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 6 |
 | <a name="provider_gitlab"></a> [gitlab](#provider\_gitlab) | >= 18.0, < 19.0 |
 
@@ -21,8 +21,9 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_iam_access_key.deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_access_key) | resource |
+| [aws_iam_instance_profile.deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_instance_profile) | resource |
 | [aws_iam_role.deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy.deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_user.deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user) | resource |
@@ -35,8 +36,9 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_cloudfront_distribution_arn"></a> [cloudfront\_distribution\_arn](#input\_cloudfront\_distribution\_arn) | CloudFront distribution ID for the IAM user/role policy | `string` | n/a | yes |
+| <a name="input_create_instance_profile"></a> [create\_instance\_profile](#input\_create\_instance\_profile) | Create instance profile for EC2 | `bool` | `false` | no |
 | <a name="input_enable_deploy_role"></a> [enable\_deploy\_role](#input\_enable\_deploy\_role) | Toggle IAM role creation for S3 deploy & CloudFront invalidation; This requires existing `aws_iam_openid_connect_provider` matching domain of your gitlab provider. | `bool` | `false` | no |
 | <a name="input_enable_deploy_user"></a> [enable\_deploy\_user](#input\_enable\_deploy\_user) | Toggle s3 deploy user creation for S3 deploy & Cloudfront invalidation | `bool` | `true` | no |
 | <a name="input_gitlab_project_ids"></a> [gitlab\_project\_ids](#input\_gitlab\_project\_ids) | Integrates with GitLab CI/CD to deploy site and invalidate CloudFront cache | `list(string)` | `[]` | no |
@@ -47,9 +49,10 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_aws_access_key_id"></a> [aws\_access\_key\_id](#output\_aws\_access\_key\_id) | AWS\_ACCESS\_KEY\_ID of the deploy user |
 | <a name="output_aws_secret_access_key"></a> [aws\_secret\_access\_key](#output\_aws\_secret\_access\_key) | AWS\_SECRET\_ACCESS\_KEY of the deploy user |
+| <a name="output_deploy_instance_profile"></a> [deploy\_instance\_profile](#output\_deploy\_instance\_profile) | Instance profile name with the deploy role attached |
 | <a name="output_deploy_role_arn"></a> [deploy\_role\_arn](#output\_deploy\_role\_arn) | IAM Role ARN of the deploy role |
 | <a name="output_deploy_user_arn"></a> [deploy\_user\_arn](#output\_deploy\_user\_arn) | IAM User ARN of the deploy user |
 <!-- END_TF_DOCS -->

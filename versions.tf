@@ -4,12 +4,12 @@ terraform {
   required_providers {
     aws = {
       source                = "hashicorp/aws"
-      version               = ">= 5.27"
+      version               = "~> 6"
       configuration_aliases = [aws.us_east_1]
     }
     gitlab = {
       source  = "gitlabhq/gitlab"
-      version = ">= 15.7, < 19.0"
+      version = ">= 18.0, < 19.0"
     }
   }
 }

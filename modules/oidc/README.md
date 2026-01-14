@@ -104,7 +104,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_lambda_edge_function_arn"></a> [lambda\_edge\_function\_arn](#output\_lambda\_edge\_function\_arn) | ARN of edge Lambda function |
 | <a name="output_oidc_callback_url"></a> [oidc\_callback\_url](#output\_oidc\_callback\_url) | OIDC callback URL for Redirect URI in the OIDC application |
 | <a name="output_oidc_callback_url_base"></a> [oidc\_callback\_url\_base](#output\_oidc\_callback\_url\_base) | Base URL for OIDC callback endpoint |
