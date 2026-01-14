@@ -1,6 +1,6 @@
 variable "application_domain" {
-  type        = string
   description = "Application domain for redirect after oidc login"
+  type        = string
 }
 
 variable "project_name" {
