@@ -1,9 +1,19 @@
 locals {
-  main_domain            = one(slice(var.domains, 0, 1))
-  alternative_domains    = length(var.domains) == 1 ? [] : slice(var.domains, 1, length(var.domains))
+  main_domain  = var.zones_and_domains[0].domains[0]
+  main_zone_id = var.zones_and_domains[0].zone_id
+
+  all_domains = distinct(flatten([for z in var.zones_and_domains : z.domains]))
+
+  alternative_domains = length(local.all_domains) == 1 ? [] : slice(local.all_domains, 1, length(local.all_domains))
+  zones_by_domain = merge([
+    for z in var.zones_and_domains : {
+      for d in z.domains : d => z.zone_id
+    }
+  ]...)
   main_domain_sanitized  = replace(local.main_domain, "*.", "")
   custom_headers_present = var.custom_headers != null && var.custom_headers != {}
   custom_headers         = local.custom_headers_present || length(var.s3_cors_rule) > 0 ? true : false
+  oidc_enabled           = length(var.oidc) == 0 ? false : true
   security_headers = var.custom_headers == null ? false : ((var.custom_headers.content_security_policy != null ||
     var.custom_headers.content_type_options != null ||
     var.custom_headers.frame_options != null ||
@@ -19,37 +29,18 @@ data "aws_region" "current" {}
 
 data "aws_caller_identity" "current" {}
 
-module "certificate" {
-  providers = {
-    aws = aws.us_east_1
-  }
+data "aws_s3_bucket" "logs" {
+  count = var.logs_bucket == null ? 0 : 1
 
-  source  = "terraform-aws-modules/acm/aws"
-  version = "5.2.0"
-
-  domain_name = local.main_domain
-  zone_id     = var.domain_zone_id
-
-  subject_alternative_names = concat(local.alternative_domains, keys(var.extra_domains))
-
-  validation_method   = "DNS"
-  wait_for_validation = true
-
-  zones = var.extra_domains
-
-  tags = local.tags
+  bucket = var.logs_bucket
 }
 
-resource "aws_cloudfront_origin_access_control" "this" {
-  name                              = "Access from CF to S3 - ${local.main_domain}"
-  description                       = "Access from CF to S3 - ${local.main_domain}"
-  origin_access_control_origin_type = "s3"
-  signing_behavior                  = "always"
-  signing_protocol                  = "sigv4"
+data "aws_cloudfront_cache_policy" "managed_caching_disabled" {
+  name = "Managed-CachingDisabled"
 }
 
-resource "aws_cloudfront_origin_access_identity" "this" {
-  comment = "Deprecated: Access from CF to S3 - ${local.main_domain} - Superseeded by OAC"
+data "aws_cloudfront_origin_request_policy" "managed_all_viewer_and_cloudfront_headers" {
+  name = "Managed-AllViewerAndCloudFrontHeaders-2022-06"
 }
 
 data "aws_iam_policy_document" "s3_bucket_policy" {
@@ -64,7 +55,7 @@ data "aws_iam_policy_document" "s3_bucket_policy" {
     ]
 
     resources = [
-      "arn:aws:s3:::${var.s3_bucket_name}/*",
+      "${module.s3_bucket.s3_bucket_arn}/*",
     ]
 
     principals {
@@ -78,7 +69,7 @@ data "aws_iam_policy_document" "s3_bucket_policy" {
     condition {
       test     = "StringEquals"
       variable = "AWS:SourceArn"
-      values   = [aws_cloudfront_distribution.this.arn]
+      values   = [module.cdn.cloudfront_distribution_arn]
     }
   }
 }
@@ -137,7 +128,7 @@ data "aws_iam_policy_document" "kms_key_policy" {
 
       principals {
         type        = "AWS"
-        identifiers = [aws_iam_user.deploy[0].arn]
+        identifiers = [module.deploy_identity.deploy_user_arn]
       }
       effect = "Allow"
     }
@@ -156,7 +147,7 @@ data "aws_iam_policy_document" "kms_key_policy" {
 
       principals {
         type        = "AWS"
-        identifiers = [aws_iam_role.deploy[0].arn]
+        identifiers = [module.deploy_identity.deploy_role_arn]
       }
       effect = "Allow"
     }
@@ -182,7 +173,7 @@ data "aws_iam_policy_document" "kms_key_policy" {
       variable = "AWS:SourceArn"
 
       values = [
-        aws_cloudfront_distribution.this.arn
+        module.cdn.cloudfront_distribution_arn
       ]
     }
   }
@@ -190,7 +181,7 @@ data "aws_iam_policy_document" "kms_key_policy" {
 
 module "s3_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.11.0"
+  version = "5.10.0"
 
   bucket = var.s3_bucket_name
 
@@ -201,7 +192,7 @@ module "s3_bucket" {
   attach_require_latest_tls_policy      = true
 
   logging = var.logs_bucket == null ? {} : {
-    target_bucket = var.logs_bucket
+    target_bucket = data.aws_s3_bucket.logs[0].id
     target_prefix = "s3/access_log/${var.s3_bucket_name}"
   }
 
@@ -224,16 +215,189 @@ module "s3_bucket" {
   tags = local.tags
 }
 
-data "aws_cloudfront_origin_request_policy" "managed_all_viewer_and_cloudfront_headers" {
-  name = "Managed-AllViewerAndCloudFrontHeaders-2022-06"
+module "certificate" {
+  providers = {
+    aws = aws.us_east_1
+  }
+
+  source  = "terraform-aws-modules/acm/aws"
+  version = "6.3.0"
+
+  domain_name = local.main_domain
+  zone_id     = local.main_zone_id
+
+  subject_alternative_names = local.alternative_domains
+
+  validation_method   = "DNS"
+  wait_for_validation = true
+
+  zones = local.zones_by_domain
+
+  tags = local.tags
 }
 
-data "aws_cloudfront_cache_policy" "managed_caching_disabled" {
-  name = "Managed-CachingDisabled"
+module "cdn" {
+  source  = "terraform-aws-modules/cloudfront/aws"
+  version = "6.3.0"
+
+  aliases             = local.all_domains
+  comment             = local.main_domain
+  default_root_object = "index.html"
+  enabled             = true
+  is_ipv6_enabled     = true
+  price_class         = var.cloudfront_price_class
+  web_acl_id          = var.waf_acl_arn
+
+  custom_error_response = local.oidc_enabled ? [] : [
+    {
+      error_caching_min_ttl = 3000
+      error_code            = 403
+      response_code         = var.override_status_code_403
+      response_page_path    = "/index.html"
+    },
+    {
+      error_caching_min_ttl = 3000
+      error_code            = 404
+      response_code         = var.override_status_code_404
+      response_page_path    = "/index.html"
+    }
+  ]
+
+  default_cache_behavior = {
+    allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods             = ["GET", "HEAD"]
+    compress                   = true
+    target_origin_id           = var.s3_bucket_name
+    response_headers_policy_id = local.custom_headers ? aws_cloudfront_response_headers_policy.this[0].id : null
+    viewer_protocol_policy     = "redirect-to-https"
+    default_ttl                = var.cache_ttl.default
+    min_ttl                    = var.cache_ttl.min
+    max_ttl                    = var.cache_ttl.max
+
+    forwarded_values = {
+      query_string = false
+      cookies = {
+        forward = local.oidc_enabled ? "all" : "none"
+      }
+    }
+
+    lambda_function_association = module.oidc.lambda_edge_function_arn == null ? {} : {
+      viewer-request = {
+        lambda_arn   = module.oidc.lambda_edge_function_arn
+        include_body = false
+      }
+    }
+
+    function_association = {
+      for k, arn in {
+        "viewer-request"  = var.functions.viewer_request
+        "viewer-response" = var.functions.viewer_response
+      } : k => { function_arn = arn } if arn != null
+    }
+  }
+
+  logging_config = var.logs_bucket_domain_name == null ? null : {
+    bucket          = var.logs_bucket_domain_name
+    prefix          = "cloudfront/access_logs/${local.main_domain_sanitized}/"
+    include_cookies = false
+  }
+
+  ordered_cache_behavior = concat(
+    [],
+    local.oidc_enabled ? [
+      {
+        path_pattern             = "/callback*"
+        target_origin_id         = "api-gateway-origin"
+        allowed_methods          = ["GET", "HEAD", "OPTIONS"]
+        cached_methods           = ["GET", "HEAD"]
+        viewer_protocol_policy   = "redirect-to-https"
+        compress                 = true
+        cache_policy_id          = aws_cloudfront_cache_policy.oidc[0].id
+        origin_request_policy_id = aws_cloudfront_origin_request_policy.oidc[0].id
+      }
+    ] : [],
+    [
+      for p in var.proxy_paths : {
+        path_pattern = "${trim(p.path_prefix, "/")}/*" # safe variant: "/${trim(p.path_prefix, "/")}/*"
+
+        allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+        cached_methods   = ["GET", "HEAD", "OPTIONS"]
+        target_origin_id = p.origin_domain
+
+        viewer_protocol_policy = "redirect-to-https"
+
+        origin_request_policy_id = data.aws_cloudfront_origin_request_policy.managed_all_viewer_and_cloudfront_headers.id
+        cache_policy_id          = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
+      }
+    ]
+  )
+
+  origin = merge(
+    {
+      s3_bucket = {
+        domain_name               = module.s3_bucket.s3_bucket_bucket_regional_domain_name
+        origin_access_control_key = "s3"
+        origin_id                 = var.s3_bucket_name
+        origin_path               = var.origin_path
+      }
+    },
+    local.oidc_enabled ? {
+      oidc_callback = {
+        domain_name = split("/", module.oidc.oidc_callback_url_base)[2]
+        origin_id   = "api-gateway-origin"
+        custom_origin_config = {
+          http_port              = 80
+          https_port             = 443
+          origin_protocol_policy = "https-only"
+          origin_ssl_protocols   = ["TLSv1.2"]
+        }
+      }
+    } : {},
+    {
+      for i, p in var.proxy_paths : "proxy_${i}" => {
+        domain_name = p.origin_domain
+        origin_id   = p.origin_domain
+        origin_path = startswith(p.path_prefix, "/") ? p.path_prefix : "/${p.path_prefix}"
+
+        custom_origin_config = {
+          http_port              = 80
+          https_port             = 443
+          origin_protocol_policy = "https-only"
+          origin_ssl_protocols   = ["TLSv1.2", "TLSv1.1"]
+        }
+      }
+    }
+  )
+
+  origin_access_control = {
+    s3 = {
+      name             = "Access from CF to S3 - ${local.main_domain}"
+      description      = "Access from CF to S3 - ${local.main_domain}"
+      origin_type      = "s3"
+      signing_behavior = "always"
+      signing_protocol = "sigv4"
+    }
+  }
+
+  restrictions = {
+    geo_restriction = {
+      restriction_type = var.restriction_type
+      locations        = var.restrictions_locations
+    }
+  }
+
+  tags = local.tags
+
+  viewer_certificate = {
+    cloudfront_default_certificate = false
+    acm_certificate_arn            = module.certificate.acm_certificate_arn
+    ssl_support_method             = "sni-only"
+    minimum_protocol_version       = "TLSv1.2_2018"
+  }
 }
 
 resource "aws_cloudfront_cache_policy" "oidc" {
-  count = length(var.oidc) == 0 ? 0 : 1
+  count = local.oidc_enabled ? 1 : 0
 
   name        = "no-cache-oidc-policy_${replace(local.main_domain_sanitized, ".", "-")}"
   comment     = "Disable caching for OIDC"
@@ -259,7 +423,7 @@ resource "aws_cloudfront_cache_policy" "oidc" {
 }
 
 resource "aws_cloudfront_origin_request_policy" "oidc" {
-  count = length(var.oidc) == 0 ? 0 : 1
+  count = local.oidc_enabled ? 1 : 0
 
   name    = "oidc-origin-policy_${replace(local.main_domain_sanitized, ".", "-")}"
   comment = "Forward all cookies and query strings for OIDC"
@@ -277,216 +441,16 @@ resource "aws_cloudfront_origin_request_policy" "oidc" {
   }
 }
 
-resource "aws_cloudfront_distribution" "this" {
-  comment = local.main_domain
-
-  web_acl_id = var.waf_acl_arn
-  origin {
-    domain_name              = module.s3_bucket.s3_bucket_bucket_regional_domain_name
-    origin_id                = var.s3_bucket_name
-    origin_access_control_id = aws_cloudfront_origin_access_control.this.id
-    origin_path              = var.origin_path
-  }
-
-  dynamic "origin" {
-    for_each = length(var.oidc) == 0 ? [] : [1]
-
-    content {
-      domain_name = split("/", module.oidc.oidc_callback_url_base)[2]
-      origin_id   = "api-gateway-origin"
-
-      custom_origin_config {
-        http_port              = 80
-        https_port             = 443
-        origin_protocol_policy = "https-only"
-        origin_ssl_protocols   = ["TLSv1.2"]
-      }
-    }
-  }
-
-  dynamic "origin" {
-    for_each = var.proxy_paths
-
-    content {
-      domain_name = origin.value.origin_domain
-      origin_id   = origin.value.origin_domain
-
-      custom_origin_config {
-        http_port              = 80
-        https_port             = 443
-        origin_protocol_policy = "https-only"
-        origin_ssl_protocols   = ["TLSv1.2", "TLSv1.1"]
-      }
-    }
-  }
-
-  aliases = concat(var.domains, keys(var.extra_domains))
-
-  enabled             = true
-  is_ipv6_enabled     = true
-  default_root_object = "index.html"
-
-  dynamic "custom_error_response" {
-    for_each = length(var.oidc) > 0 ? [] : [
-      {
-        error_code         = 404
-        response_code      = var.override_status_code_404
-        response_page_path = "/index.html"
-      },
-      {
-        error_code         = 403
-        response_code      = var.override_status_code_403
-        response_page_path = "/index.html"
-      }
-    ]
-
-    content {
-      error_caching_min_ttl = 3000
-      error_code            = custom_error_response.value.error_code
-      response_code         = custom_error_response.value.response_code
-      response_page_path    = custom_error_response.value.response_page_path
-    }
-  }
-
-  default_cache_behavior {
-    allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cached_methods             = ["GET", "HEAD"]
-    target_origin_id           = var.s3_bucket_name
-    response_headers_policy_id = local.custom_headers ? aws_cloudfront_response_headers_policy.this[0].id : null
-
-    forwarded_values {
-      query_string = false
-
-      cookies {
-        forward = length(var.oidc) == 0 ? "none" : "all"
-      }
-    }
-
-    viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = var.min_ttl
-    default_ttl            = var.default_ttl
-    max_ttl                = var.max_ttl
-
-    dynamic "lambda_function_association" {
-      for_each = module.oidc.lambda_edge_function_arn != null ? [module.oidc.lambda_edge_function_arn] : []
-      content {
-        event_type   = "viewer-request"
-        lambda_arn   = lambda_function_association.value
-        include_body = false
-      }
-    }
-
-    dynamic "function_association" {
-      for_each = concat(
-        var.functions.viewer_request == null ? [] : [
-          {
-            event_type   = "viewer-request",
-            function_arn = var.functions.viewer_request
-          }
-        ],
-        var.functions.viewer_response == null ? [] : [
-          {
-            event_type   = "viewer-response",
-            function_arn = var.functions.viewer_response
-          }
-        ]
-      )
-
-      content {
-        event_type   = function_association.value.event_type
-        function_arn = function_association.value.function_arn
-      }
-    }
-  }
-
-  dynamic "ordered_cache_behavior" {
-    for_each = length(var.oidc) == 0 ? [] : [1]
-
-    content {
-      path_pattern     = "/callback*"
-      target_origin_id = "api-gateway-origin"
-
-      allowed_methods = ["GET", "HEAD", "OPTIONS"]
-      cached_methods  = ["GET", "HEAD"]
-
-      viewer_protocol_policy = "redirect-to-https"
-
-      compress = true
-
-      cache_policy_id          = aws_cloudfront_cache_policy.oidc[0].id
-      origin_request_policy_id = aws_cloudfront_origin_request_policy.oidc[0].id
-    }
-  }
-
-  dynamic "ordered_cache_behavior" {
-    for_each = var.proxy_paths
-
-    content {
-      path_pattern     = "${ordered_cache_behavior.value.path_prefix}/*"
-      allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-      cached_methods   = ["GET", "HEAD", "OPTIONS"]
-      target_origin_id = ordered_cache_behavior.value.origin_domain
-
-      viewer_protocol_policy = "redirect-to-https"
-
-      origin_request_policy_id = data.aws_cloudfront_origin_request_policy.managed_all_viewer_and_cloudfront_headers.id
-      cache_policy_id          = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
-    }
-  }
-
-  price_class = var.cloudfront_price_class
-
-  restrictions {
-    geo_restriction {
-      restriction_type = var.restriction_type
-      locations        = var.restrictions_locations
-    }
-  }
-
-  viewer_certificate {
-    cloudfront_default_certificate = false
-    acm_certificate_arn            = module.certificate.acm_certificate_arn
-    ssl_support_method             = "sni-only"
-    minimum_protocol_version       = "TLSv1.2_2018"
-  }
-
-  dynamic "logging_config" {
-    for_each = var.logs_bucket_domain_name == null ? [] : [1]
-
-    content {
-      bucket          = var.logs_bucket_domain_name
-      prefix          = "cloudfront/access_logs/${local.main_domain_sanitized}/"
-      include_cookies = false
-    }
-  }
-
-  tags = local.tags
-}
-
 resource "aws_route53_record" "this" {
-  for_each = toset(var.domains)
-
-  zone_id = var.domain_zone_id
-  name    = each.value
-  type    = "A"
-
-  alias {
-    name                   = aws_cloudfront_distribution.this.domain_name
-    zone_id                = aws_cloudfront_distribution.this.hosted_zone_id
-    evaluate_target_health = false
-  }
-}
-
-resource "aws_route53_record" "extra" {
-  for_each = var.extra_domains
+  for_each = local.zones_by_domain
 
   zone_id = each.value
   name    = each.key
   type    = "A"
 
   alias {
-    name                   = aws_cloudfront_distribution.this.domain_name
-    zone_id                = aws_cloudfront_distribution.this.hosted_zone_id
+    name                   = module.cdn.cloudfront_distribution_domain_name
+    zone_id                = module.cdn.cloudfront_distribution_hosted_zone_id
     evaluate_target_health = false
   }
 }
@@ -586,19 +550,4 @@ resource "aws_cloudfront_response_headers_policy" "this" {
     }
   }
 
-}
-
-moved {
-  from = aws_kms_key.this
-  to   = aws_kms_key.this[0]
-}
-
-moved {
-  from = aws_kms_alias.this
-  to   = aws_kms_alias.this[0]
-}
-
-moved {
-  from = aws_kms_key_policy.this
-  to   = aws_kms_key_policy.this[0]
 }
