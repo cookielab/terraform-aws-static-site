@@ -9,7 +9,7 @@ jobs:
     name: Terraform Format
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/cookielab/container-image-terraform:1.13
+      image: ghcr.io/cookielab/container-image-terraform:1.14
       options: --user root
       credentials:
           username: ${{ github.actor }}
@@ -25,7 +25,7 @@ jobs:
     name: TF Lint
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/cookielab/container-image-terraform:1.13
+      image: ghcr.io/cookielab/container-image-terraform:1.14
       options: --user root
       credentials:
           username: ${{ github.actor }}
@@ -39,7 +39,7 @@ jobs:
     name: Terraform Validate
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/cookielab/container-image-terraform:1.13
+      image: ghcr.io/cookielab/container-image-terraform:1.14
       options: --user root
       credentials:
           username: ${{ github.actor }}
