@@ -1,5 +1,5 @@
 # Callback Lambda
-data "archive_file" "callback_lambda_zip" {
+resource "archive_file" "callback_lambda_zip" {
   count       = local.enabled ? 1 : 0
   type        = "zip"
   source_file = "${path.module}/lambda/callback/index.js"
@@ -12,8 +12,8 @@ resource "aws_lambda_function" "oidc_callback" {
   role             = aws_iam_role.lambda_oidc[0].arn
   handler          = "index.handler"
   runtime          = "nodejs22.x"
-  filename         = data.archive_file.callback_lambda_zip[0].output_path
-  source_code_hash = data.archive_file.callback_lambda_zip[0].output_base64sha256
+  filename         = resource.archive_file.callback_lambda_zip[0].output_path
+  source_code_hash = resource.archive_file.callback_lambda_zip[0].output_base64sha256
   publish          = true
 
   environment {
