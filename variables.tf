@@ -55,6 +55,12 @@ variable "s3_bucket_name" {
   type        = string
 }
 
+variable "s3_bucket_namespace" {
+  description = "Namespace for the bucket. Determines bucket naming scope. Valid values: account-regional, global. Defaults to global (AWS)"
+  type        = string
+  default     = null
+}
+
 variable "s3_bucket_policy" {
   description = "Additional S3 bucket policy"
   type        = string
