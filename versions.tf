@@ -7,9 +7,5 @@ terraform {
       version               = ">= 6.37"
       configuration_aliases = [aws.us_east_1]
     }
-    gitlab = {
-      source  = "gitlabhq/gitlab"
-      version = ">= 18.0, < 19.0"
-    }
   }
 }
