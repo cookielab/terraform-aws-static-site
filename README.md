@@ -30,7 +30,7 @@ module "static-site" {
 | Name | Version |
 | ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5, < 2.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 6 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.37 |
 | <a name="requirement_gitlab"></a> [gitlab](#requirement\_gitlab) | >= 18.0, < 19.0 |
 
 ## Providers
@@ -48,7 +48,7 @@ module "static-site" {
 | <a name="module_deploy_identity"></a> [deploy\_identity](#module\_deploy\_identity) | ./modules/deploy_identity | n/a |
 | <a name="module_gitlab"></a> [gitlab](#module\_gitlab) | ./modules/gitlab | n/a |
 | <a name="module_oidc"></a> [oidc](#module\_oidc) | ./modules/oidc | n/a |
-| <a name="module_s3_bucket"></a> [s3\_bucket](#module\_s3\_bucket) | terraform-aws-modules/s3-bucket/aws | 5.10.0 |
+| <a name="module_s3_bucket"></a> [s3\_bucket](#module\_s3\_bucket) | terraform-aws-modules/s3-bucket/aws | 5.11.0 |
 
 ## Resources
 
@@ -102,6 +102,7 @@ module "static-site" {
 | <a name="input_restriction_type"></a> [restriction\_type](#input\_restriction\_type) | Apply for geo restrictions, values: none, whitelist, blacklist | `string` | `"none"` | no |
 | <a name="input_restrictions_locations"></a> [restrictions\_locations](#input\_restrictions\_locations) | List of country codes | `list(string)` | `null` | no |
 | <a name="input_s3_bucket_name"></a> [s3\_bucket\_name](#input\_s3\_bucket\_name) | The name for the S3 bucket hosting the website | `string` | n/a | yes |
+| <a name="input_s3_bucket_namespace"></a> [s3\_bucket\_namespace](#input\_s3\_bucket\_namespace) | Namespace for the bucket. Determines bucket naming scope. Valid values: account-regional, global. Defaults to global (AWS) | `string` | `null` | no |
 | <a name="input_s3_bucket_policy"></a> [s3\_bucket\_policy](#input\_s3\_bucket\_policy) | Additional S3 bucket policy | `string` | `"{}"` | no |
 | <a name="input_s3_cors_rule"></a> [s3\_cors\_rule](#input\_s3\_cors\_rule) | List of maps containing rules for Cross-Origin Resource Sharing. | <pre>list(object({<br/>    allowed_headers = optional(list(string))<br/>    allowed_methods = optional(list(string))<br/>    allowed_origins = optional(list(string))<br/>    expose_headers  = optional(list(string))<br/>    max_age_seconds = optional(number)<br/>  }))</pre> | `[]` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Map of tags to be set on resources | `map(string)` | `{}` | no |
