@@ -3,7 +3,7 @@ data "archive_file" "callback_lambda_zip" {
   count       = local.enabled ? 1 : 0
   type        = "zip"
   source_file = "${path.module}/lambda/callback/index.js"
-  output_path = "${path.module}/lambda/callback.zip"
+  output_path = var.callback_lambda_zip_path != null ? var.callback_lambda_zip_path : "${path.module}/lambda/callback.zip"
 }
 
 resource "aws_lambda_function" "oidc_callback" {

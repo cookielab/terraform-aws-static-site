@@ -10,7 +10,8 @@ module "oidc" {
   application_domain = local.main_domain
   project_name       = replace(local.main_domain_sanitized, ".", "-")
 
-  edge_lambda_zip_path = var.edge_lambda_zip_path
+  edge_lambda_zip_path     = var.edge_lambda_zip_path
+  callback_lambda_zip_path = var.callback_lambda_zip_path
 
   tags = local.tags
 }

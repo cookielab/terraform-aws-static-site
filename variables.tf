@@ -275,3 +275,8 @@ variable "edge_lambda_zip_path" {
   type    = string
   default = null
 }
+
+variable "callback_lambda_zip_path" {
+  type    = string
+  default = null
+}
