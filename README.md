@@ -28,22 +28,22 @@ module "static-site" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5, < 2.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.27 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.27 |
 | <a name="requirement_gitlab"></a> [gitlab](#requirement\_gitlab) | >= 15.7, < 19.0 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | 5.61.0 |
 | <a name="provider_gitlab"></a> [gitlab](#provider\_gitlab) | 17.2.0 |
 
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_certificate"></a> [certificate](#module\_certificate) | terraform-aws-modules/acm/aws | 5.2.0 |
 | <a name="module_gitlab"></a> [gitlab](#module\_gitlab) | ./modules/gitlab | n/a |
 | <a name="module_oidc"></a> [oidc](#module\_oidc) | ./modules/oidc | n/a |
@@ -52,7 +52,7 @@ module "static-site" {
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_cloudfront_cache_policy.oidc](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_cache_policy) | resource |
 | [aws_cloudfront_distribution.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution) | resource |
 | [aws_cloudfront_origin_access_control.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_origin_access_control) | resource |
@@ -83,10 +83,10 @@ module "static-site" {
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_aws_env_vars_suffix"></a> [aws\_env\_vars\_suffix](#input\_aws\_env\_vars\_suffix) | Append suffix for Gitlab CI/CD environment variables if needed | `string` | `""` | no |
 | <a name="input_cloudfront_price_class"></a> [cloudfront\_price\_class](#input\_cloudfront\_price\_class) | CloudFront price class | `string` | `"PriceClass_100"` | no |
-| <a name="input_custom_headers"></a> [custom\_headers](#input\_custom\_headers) | n/a | <pre>object({<br/>    headers = optional(map(object({<br/>      override = optional(bool, true)<br/>      value    = string<br/>    })))<br/>    cors_rules = optional(object({<br/>      use             = optional(bool, false)<br/>      allowed_headers = optional(list(string))<br/>      allowed_methods = optional(list(string))<br/>      allowed_origins = optional(list(string))<br/>      expose_headers  = optional(list(string))<br/>      max_age_seconds = optional(number)<br/>      override        = optional(bool, true)<br/>    }), null)<br/>    frame_options = optional(object({<br/>      use          = optional(bool, false)<br/>      frame_option = string<br/>      override     = optional(bool, true)<br/>    }), null)<br/>    referrer_policy = optional(object({<br/>      use             = optional(bool, false)<br/>      referrer_policy = string<br/>      override        = optional(bool, true)<br/>    }), null)<br/>    xss_protection = optional(object({<br/>      use        = optional(bool, false)<br/>      mode_block = bool<br/>      protection = bool<br/>      override   = optional(bool, true)<br/>    }), null)<br/>    content_security_policy = optional(object({<br/>      use                     = optional(bool, false)<br/>      content_security_policy = string<br/>      override                = optional(bool, true)<br/>    }), null)<br/>    strict_transport_security = optional(object({<br/>      use                        = optional(bool, false)<br/>      access_control_max_age_sec = string<br/>      include_subdomains         = bool<br/>      preload                    = bool<br/>      override                   = optional(bool, true)<br/>    }), null)<br/>    content_type_options = optional(object({<br/>      override = optional(bool, true)<br/>    }), null)<br/>  })</pre> | `null` | no |
+| <a name="input_custom_headers"></a> [custom\_headers](#input\_custom\_headers) | n/a | <pre>object({<br/>    headers = optional(map(object({<br/>      override = optional(bool, true)<br/>      value    = string<br/>    })))<br/>    cors_rules = optional(object({<br/>      use             = optional(bool, false)<br/>      allowed_headers = optional(list(string))<br/>      allowed_methods = optional(list(string))<br/>      allowed_origins = optional(list(string))<br/>      expose_headers  = optional(list(string))<br/>      max_age_seconds = optional(number)<br/>      override        = optional(bool, true)<br/>    }), null)<br/>    frame_options = optional(object({<br/>      use          = optional(bool, false)<br/>      frame_option = string<br/>      override     = optional(bool, true)<br/>    }), null)<br/>    referrer_policy = optional(object({<br/>      use             = optional(bool, false)<br/>      referrer_policy = string<br/>      override        = optional(bool, true)<br/>    }), null)<br/>    xss_protection = optional(object({<br/>      use        = optional(bool, false)<br/>      mode_block = bool<br/>      protection = bool<br/>      override   = optional(bool, true)<br/>    }), null)<br/>    content_security_policy = optional(object({<br/>      use      = optional(bool, false)<br/>      policy   = string<br/>      override = optional(bool, true)<br/>    }), null)<br/>    strict_transport_security = optional(object({<br/>      use                        = optional(bool, false)<br/>      access_control_max_age_sec = string<br/>      include_subdomains         = bool<br/>      preload                    = bool<br/>      override                   = optional(bool, true)<br/>    }), null)<br/>    content_type_options = optional(object({<br/>      override = optional(bool, true)<br/>    }), null)<br/>  })</pre> | `null` | no |
 | <a name="input_default_ttl"></a> [default\_ttl](#input\_default\_ttl) | Default amount of time that you want objects to stay in a CloudFront cache | `number` | `3600` | no |
 | <a name="input_domain_zone_id"></a> [domain\_zone\_id](#input\_domain\_zone\_id) | The ID of the hosted zone for domain | `string` | n/a | yes |
 | <a name="input_domains"></a> [domains](#input\_domains) | List of domain aliases. You can also specify wildcard eg.: `*.example.com` | `list(string)` | n/a | yes |
@@ -123,13 +123,14 @@ module "static-site" {
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_aws_access_key_id"></a> [aws\_access\_key\_id](#output\_aws\_access\_key\_id) | n/a |
 | <a name="output_aws_cloudfront_distribution_id"></a> [aws\_cloudfront\_distribution\_id](#output\_aws\_cloudfront\_distribution\_id) | n/a |
 | <a name="output_aws_s3_bucket_arn"></a> [aws\_s3\_bucket\_arn](#output\_aws\_s3\_bucket\_arn) | n/a |
 | <a name="output_aws_s3_bucket_name"></a> [aws\_s3\_bucket\_name](#output\_aws\_s3\_bucket\_name) | n/a |
 | <a name="output_aws_s3_bucket_regional_domain_name"></a> [aws\_s3\_bucket\_regional\_domain\_name](#output\_aws\_s3\_bucket\_regional\_domain\_name) | n/a |
 | <a name="output_aws_secret_access_key"></a> [aws\_secret\_access\_key](#output\_aws\_secret\_access\_key) | n/a |
+| <a name="output_deploy_role_arn"></a> [deploy\_role\_arn](#output\_deploy\_role\_arn) | n/a |
 | <a name="output_oidc_callback_url"></a> [oidc\_callback\_url](#output\_oidc\_callback\_url) | n/a |
 | <a name="output_s3_kms_key_arn"></a> [s3\_kms\_key\_arn](#output\_s3\_kms\_key\_arn) | n/a |
 <!-- END_TF_DOCS -->
