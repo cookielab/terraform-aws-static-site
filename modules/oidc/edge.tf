@@ -16,8 +16,9 @@ data "archive_file" "edge_lambda_zip" {
 }
 
 resource "aws_lambda_function" "edge_auth" {
-  count            = local.enabled ? 1 : 0
-  provider         = aws.us_east_1
+  count = local.enabled ? 1 : 0
+
+  region           = "us-east-1"
   function_name    = "${var.project_name}-oidc-auth"
   role             = aws_iam_role.lambda_oidc[0].arn
   handler          = "index.handler"
