@@ -12,11 +12,6 @@ locals {
 module "oidc" {
   source = "./modules/oidc"
 
-  providers = {
-    aws           = aws
-    aws.us_east_1 = aws.us_east_1
-  }
-
   oidc = [
     {
       application_name = "first_provider"
@@ -71,7 +66,6 @@ Generate an HTML file on S3 populeted with links to pick a provider. Redirect us
 | ---- | ------- |
 | <a name="provider_archive"></a> [archive](#provider\_archive) | ~> 2.7 |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 6 |
-| <a name="provider_aws.us_east_1"></a> [aws.us\_east\_1](#provider\_aws.us\_east\_1) | ~> 6 |
 | <a name="provider_random"></a> [random](#provider\_random) | >= 3.6.0 |
 
 ## Modules

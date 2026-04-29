@@ -1,22 +1,13 @@
 # Terraform module for static site hosting
 
-This module will create S3 bucket as storage for site and connect it with CloudFront for exposing it to public. It also creates TLS certificates for it.
+This module will create S3 bucket as storage for site and connect it with CloudFront distribution with wide configuraiton options for exposing it to public securly over https using TLS certificates issued by ACM. In addition the module can create a IAM user with static keys or IAM role (optionally with instance profile) with permission to deploy site to S3 and invalidate CloudFront distribution, populate the GitLab CI/CD variables to a specified project. It is also possible to setup OIDC authentication with provider.
 
 ## Usage
 
 ```terraform
-provider "aws" {
-  alias  = "us_east_1"
-  region = "us-east-1"
-}
-
 module "static-site" {
   source  = "cookielab/static-site/aws"
-  version = "~> 2.1"
-
-  providers = {
-    aws.us_east_1 = aws.us_east_1
-  }
+  version = "~> 5.0"
 
   domains        = ["www.example.com"]
   domain_zone_id = aws_route53_zone.example_com.zone_id
@@ -31,7 +22,6 @@ module "static-site" {
 | ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5, < 2.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.37 |
-| <a name="requirement_gitlab"></a> [gitlab](#requirement\_gitlab) | >= 18.0, < 19.0 |
 
 ## Providers
 

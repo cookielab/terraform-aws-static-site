@@ -217,13 +217,10 @@ module "s3_bucket" {
 }
 
 module "certificate" {
-  providers = {
-    aws = aws.us_east_1
-  }
-
   source  = "terraform-aws-modules/acm/aws"
   version = "6.3.0"
 
+  region      = "us-east-1"
   domain_name = local.main_domain
   zone_id     = local.main_zone_id
 
