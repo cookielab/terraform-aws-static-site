@@ -1,3 +1,4 @@
+# tflint-ignore: terraform_unused_declarations
 variable "domain_zone_id" { # Deprecated; to be removed in upcomming releases
   description = "Deprecated!  Use `zones_and_domains`.The ID of the hosted zone for domain"
   type        = string
@@ -8,6 +9,7 @@ variable "domain_zone_id" { # Deprecated; to be removed in upcomming releases
   }
 }
 
+# tflint-ignore: terraform_unused_declarations
 variable "domains" { # Deprecated; to be removed in upcomming releases
   description = "Deprecated! Use `zones_and_domains`. List of domain aliases. You can also specify wildcard eg.: `*.example.com`"
   type        = list(string)
@@ -18,6 +20,7 @@ variable "domains" { # Deprecated; to be removed in upcomming releases
   }
 }
 
+# tflint-ignore: terraform_unused_declarations
 variable "extra_domains" { # Deprecated; to be removed in upcomming releases
   description = "Deprecated! Use `zones_and_domains`. Map of extra_domains with domain name and zone_id; This input can be kept initialy for moved blocks generaiton"
   type        = map(string)
