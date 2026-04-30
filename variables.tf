@@ -114,6 +114,12 @@ variable "enable_deploy_role" {
   description = "Toggle IAM role creation for S3 deploy & CloudFront invalidation; This requires existing aws_iam_openid_connect_provider matching domain of your gitlab provider"
 }
 
+variable "create_instance_profile" {
+  type        = bool
+  default     = false
+  description = "Create instance profile for EC2"
+}
+
 variable "enable_deploy_user" {
   type        = bool
   default     = true

@@ -59,20 +59,20 @@ Generate an HTML file on S3 populeted with links to pick a provider. Redirect us
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5, < 2.0 |
 | <a name="requirement_archive"></a> [archive](#requirement\_archive) | ~> 2.7 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.27 |
-| <a name="requirement_random"></a> [random](#requirement\_random) | 3.7.2 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.27 |
+| <a name="requirement_random"></a> [random](#requirement\_random) | >= 3.6.0 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_archive"></a> [archive](#provider\_archive) | ~> 2.7 |
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.27 |
-| <a name="provider_aws.us_east_1"></a> [aws.us\_east\_1](#provider\_aws.us\_east\_1) | ~> 5.27 |
-| <a name="provider_random"></a> [random](#provider\_random) | 3.7.2 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.27 |
+| <a name="provider_aws.us_east_1"></a> [aws.us\_east\_1](#provider\_aws.us\_east\_1) | >= 5.27 |
+| <a name="provider_random"></a> [random](#provider\_random) | >= 3.6.0 |
 
 ## Modules
 
@@ -81,13 +81,13 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_iam_role.lambda_oidc](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy_attachment.lambda_edge](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_lambda_function.edge_auth](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) | resource |
 | [aws_lambda_function.oidc_callback](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) | resource |
 | [aws_lambda_function_url.oidc_callback](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function_url) | resource |
-| [random_string.session_secret](https://registry.terraform.io/providers/hashicorp/random/3.7.2/docs/resources/string) | resource |
+| [random_string.session_secret](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
 | [archive_file.callback_lambda_zip](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
 | [archive_file.edge_lambda_zip](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
 | [aws_iam_policy_document.lambda_assume](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
@@ -95,7 +95,7 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_application_domain"></a> [application\_domain](#input\_application\_domain) | Application domain for redirect after oidc login | `string` | n/a | yes |
 | <a name="input_oidc"></a> [oidc](#input\_oidc) | List of OIDC providers | <pre>list(object({<br/>    application_name = string<br/>    application_id   = string<br/>    client_secret    = string<br/>    auth_url         = string<br/>    token_url        = string<br/>    session_duration = optional(number, 12 * 3600)<br/>  }))</pre> | `[]` | no |
 | <a name="input_project_name"></a> [project\_name](#input\_project\_name) | Prefix for naming the resources | `string` | `"static-site"` | no |
@@ -104,7 +104,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_lambda_edge_function_arn"></a> [lambda\_edge\_function\_arn](#output\_lambda\_edge\_function\_arn) | ARN Lambda funkce pro edge použití |
 | <a name="output_oidc_callback_url"></a> [oidc\_callback\_url](#output\_oidc\_callback\_url) | Callback URL pro OIDC redirect |
 | <a name="output_oidc_callback_url_base"></a> [oidc\_callback\_url\_base](#output\_oidc\_callback\_url\_base) | Base URL for OIDC callback endpoint |
