@@ -15,7 +15,7 @@ output "aws_s3_bucket_regional_domain_name" {
 
 output "aws_cloudfront_distribution_id" {
   description = "CloudFront distribution ID"
-  value       = aws_cloudfront_distribution.this.id
+  value       = module.cdn.cloudfront_distribution_id
 }
 
 output "aws_access_key_id" {
