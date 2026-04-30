@@ -34,7 +34,7 @@ data "aws_iam_policy_document" "assume_role_web_identity" {
 }
 
 data "aws_iam_policy_document" "assume_role_ec2" {
-  count = var.enable_deploy_role && var.create_instance_profile ? 1 : 0
+  count = var.create_instance_profile ? 1 : 0
   statement {
     actions = ["sts:AssumeRole"]
     effect  = "Allow"
@@ -48,10 +48,10 @@ data "aws_iam_policy_document" "assume_role_ec2" {
 
 data "aws_iam_policy_document" "assume_role" {
   count = var.enable_deploy_role ? 1 : 0
-  source_policy_documents = compact([
-    length(data.aws_iam_policy_document.assume_role_web_identity) > 0 ? data.aws_iam_policy_document.assume_role_web_identity[0].json : null,
-    length(data.aws_iam_policy_document.assume_role_ec2) > 0 ? data.aws_iam_policy_document.assume_role_ec2[0].json : null,
-  ])
+  source_policy_documents = concat(
+    data.aws_iam_policy_document.assume_role_web_identity[*].json,
+    data.aws_iam_policy_document.assume_role_ec2[*].json,
+  )
 }
 
 resource "aws_iam_role" "deploy" {
