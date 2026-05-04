@@ -111,13 +111,13 @@ variable "functions" {
 variable "enable_deploy_role" {
   type        = bool
   default     = false
-  description = "Toggle IAM role creation for S3 deploy & CloudFront invalidation; This requires existing aws_iam_openid_connect_provider matching domain of your gitlab provider"
+  description = "Toggle IAM role creation for S3 deploy & CloudFront invalidation. Trust policy is assembled from two optional sources: GitLab OIDC web identity (when gitlab_project_ids/gitlab_project_id is set; requires existing aws_iam_openid_connect_provider matching the gitlab domain) and EC2 service trust (when create_instance_profile is true)."
 }
 
 variable "create_instance_profile" {
   type        = bool
   default     = false
-  description = "Create instance profile for EC2"
+  description = "Create instance profile for EC2 and add ec2.amazonaws.com service trust to the deploy role's assume role policy. Requires enable_deploy_role = true."
 }
 
 variable "enable_deploy_user" {
