@@ -19,8 +19,8 @@ output "deploy_role_arn" {
   value = var.enable_deploy_role ? aws_iam_role.deploy[0].arn : null
 }
 
-output "deploy_instance_profile" {
-  value = var.create_instance_profile ? aws_iam_instance_profile.deploy[0].arn : null
+output "deploy_instance_profile_name" {
+  value = var.create_instance_profile ? aws_iam_instance_profile.deploy[0].name : null
 }
 
 output "aws_s3_bucket_arn" {
