@@ -91,6 +91,8 @@ No modules.
 | Name | Description | Type | Default | Required |
 | ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_application_domain"></a> [application\_domain](#input\_application\_domain) | Application domain for redirect after oidc login | `string` | n/a | yes |
+| <a name="input_callback_lambda_zip_path"></a> [callback\_lambda\_zip\_path](#input\_callback\_lambda\_zip\_path) | n/a | `string` | `null` | no |
+| <a name="input_edge_lambda_zip_path"></a> [edge\_lambda\_zip\_path](#input\_edge\_lambda\_zip\_path) | n/a | `string` | `null` | no |
 | <a name="input_oidc"></a> [oidc](#input\_oidc) | List of OIDC providers | <pre>list(object({<br/>    application_name = string<br/>    application_id   = string<br/>    client_secret    = string<br/>    auth_url         = string<br/>    token_url        = string<br/>    session_duration = optional(number, 12 * 3600)<br/>  }))</pre> | `[]` | no |
 | <a name="input_project_name"></a> [project\_name](#input\_project\_name) | Prefix for naming the resources | `string` | `"static-site"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Resources tags map | `map(string)` | `{}` | no |
