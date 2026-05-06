@@ -30,6 +30,8 @@ No modules.
 | [aws_iam_user_policy.deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user_policy) | resource |
 | [aws_iam_openid_connect_provider.gitlab](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_openid_connect_provider) | data source |
 | [aws_iam_policy_document.assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.assume_role_ec2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.assume_role_web_identity](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [gitlab_project.this](https://registry.terraform.io/providers/gitlabhq/gitlab/latest/docs/data-sources/project) | data source |
 
@@ -38,8 +40,8 @@ No modules.
 | Name | Description | Type | Default | Required |
 | ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_cloudfront_distribution_arn"></a> [cloudfront\_distribution\_arn](#input\_cloudfront\_distribution\_arn) | CloudFront distribution ID for the IAM user/role policy | `string` | n/a | yes |
-| <a name="input_create_instance_profile"></a> [create\_instance\_profile](#input\_create\_instance\_profile) | Create instance profile for EC2 | `bool` | `false` | no |
-| <a name="input_enable_deploy_role"></a> [enable\_deploy\_role](#input\_enable\_deploy\_role) | Toggle IAM role creation for S3 deploy & CloudFront invalidation; This requires existing `aws_iam_openid_connect_provider` matching domain of your gitlab provider. | `bool` | `false` | no |
+| <a name="input_create_instance_profile"></a> [create\_instance\_profile](#input\_create\_instance\_profile) | Create instance profile for EC2 and add ec2.amazonaws.com service trust to the deploy role's assume role policy. Requires enable\_deploy\_role = true. | `bool` | `false` | no |
+| <a name="input_enable_deploy_role"></a> [enable\_deploy\_role](#input\_enable\_deploy\_role) | Toggle IAM role creation for S3 deploy & CloudFront invalidation; Trust policy is assembled from two optional sources: GitLab OIDC web identity (when `gitlab_project_ids` is set; requires existing `aws_iam_openid_connect_provider` matching the gitlab domain) and EC2 service trust (when `create_instance_profile` is true). | `bool` | `false` | no |
 | <a name="input_enable_deploy_user"></a> [enable\_deploy\_user](#input\_enable\_deploy\_user) | Toggle s3 deploy user creation for S3 deploy & Cloudfront invalidation | `bool` | `true` | no |
 | <a name="input_gitlab_project_ids"></a> [gitlab\_project\_ids](#input\_gitlab\_project\_ids) | Integrates with GitLab CI/CD to deploy site and invalidate CloudFront cache | `list(string)` | `[]` | no |
 | <a name="input_identity_base_name"></a> [identity\_base\_name](#input\_identity\_base\_name) | The base name for the IAM user/role withtout `zvirt-` prefix and `-deploy` suffix | `string` | n/a | yes |
