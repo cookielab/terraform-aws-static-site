@@ -2,7 +2,7 @@
 data "archive_file" "edge_lambda_zip" {
   count       = local.enabled ? 1 : 0
   type        = "zip"
-  output_path = "${path.module}/lambda/edge_auth.zip"
+  output_path = var.edge_lambda_zip_path != null ? var.edge_lambda_zip_path : "${path.module}/lambda/edge_auth.zip"
 
   source {
     filename = "index.js"

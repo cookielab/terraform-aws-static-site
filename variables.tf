@@ -276,3 +276,13 @@ variable "oidc" {
   }))
   default = []
 }
+
+variable "oidc_edge_lambda_zip_path" {
+  type    = string
+  default = null
+}
+
+variable "oidc_callback_lambda_zip_path" {
+  type    = string
+  default = null
+}
