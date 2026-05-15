@@ -313,11 +313,13 @@ variable "oidc" {
 }
 
 variable "oidc_edge_lambda_zip_path" {
-  type    = string
-  default = null
+  description = "Edge Lambda zip file output path for CI/CD "
+  type        = string
+  default     = null
 }
 
 variable "oidc_callback_lambda_zip_path" {
-  type    = string
-  default = null
+  description = "Callback Lambda zip file output path"
+  type        = string
+  default     = null
 }
