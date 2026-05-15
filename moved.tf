@@ -46,3 +46,9 @@ moved {
   from = aws_cloudfront_response_headers_policy.this[0]
   to   = module.cdn.aws_cloudfront_response_headers_policy.this["headers"]
 }
+
+moved {
+  from = aws_kms_key.this[0]
+  to   = module.kms.aws_kms_key.this[0]
+}
+
