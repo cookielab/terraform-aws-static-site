@@ -294,8 +294,8 @@ module "cdn" {
     }
   }
 
-  logging_config = var.logs_bucket_domain_name == null ? null : {
-    bucket          = var.logs_bucket_domain_name
+  logging_config = var.logs_bucket == null ? null : {
+    bucket          = data.aws_s3_bucket.logs[0].bucket_domain_name
     prefix          = "cloudfront/access_logs/${local.main_domain_sanitized}/"
     include_cookies = false
   }
