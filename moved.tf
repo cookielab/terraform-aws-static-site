@@ -31,3 +31,18 @@ moved {
   from = aws_iam_role_policy.deploy[0]
   to   = module.deploy_identity.aws_iam_role_policy.deploy[0]
 }
+
+moved {
+  from = aws_cloudfront_cache_policy.oidc[0]
+  to   = module.cdn.aws_cloudfront_cache_policy.this["oidc"]
+}
+
+moved {
+  from = aws_cloudfront_origin_request_policy.oidc[0]
+  to   = module.cdn.aws_cloudfront_origin_request_policy.this["oidc"]
+}
+
+moved {
+  from = aws_cloudfront_response_headers_policy.this[0]
+  to   = module.cdn.aws_cloudfront_response_headers_policy.this["headers"]
+}
