@@ -236,7 +236,7 @@ module "certificate" {
 
 module "cdn" {
   source  = "terraform-aws-modules/cloudfront/aws"
-  version = "6.3.0"
+  version = "6.6.0"
 
   aliases             = local.all_domains
   comment             = local.main_domain
@@ -262,15 +262,15 @@ module "cdn" {
   ]
 
   default_cache_behavior = {
-    allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cached_methods             = ["GET", "HEAD"]
-    compress                   = true
-    target_origin_id           = var.s3_bucket_name
-    response_headers_policy_id = local.custom_headers ? aws_cloudfront_response_headers_policy.this[0].id : null
-    viewer_protocol_policy     = "redirect-to-https"
-    default_ttl                = var.cache_ttl.default
-    min_ttl                    = var.cache_ttl.min
-    max_ttl                    = var.cache_ttl.max
+    allowed_methods             = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods              = ["GET", "HEAD"]
+    compress                    = true
+    target_origin_id            = var.s3_bucket_name
+    response_headers_policy_key = local.custom_headers ? "headers" : null
+    viewer_protocol_policy      = "redirect-to-https"
+    default_ttl                 = var.cache_ttl.default
+    min_ttl                     = var.cache_ttl.min
+    max_ttl                     = var.cache_ttl.max
 
     forwarded_values = {
       query_string = false
@@ -300,18 +300,70 @@ module "cdn" {
     include_cookies = false
   }
 
+  cache_policies = merge(
+    {},
+    local.oidc_enabled ? {
+      oidc = {
+        name        = "no-cache-oidc-policy_${replace(local.main_domain_sanitized, ".", "-")}"
+        comment     = "Disable caching for OIDC"
+        default_ttl = 0
+        min_ttl     = 0
+        max_ttl     = 0
+
+        parameters_in_cache_key_and_forwarded_to_origin = {
+          enable_accept_encoding_brotli = true
+          enable_accept_encoding_gzip   = true
+
+          cookies_config = {
+            cookie_behavior = "none"
+          }
+
+          headers_config = {
+            header_behavior = "none"
+          }
+
+          query_strings_config = {
+            query_string_behavior = "none"
+          }
+        }
+      }
+    } : {}
+  )
+
+  origin_request_policies = merge(
+    {},
+    local.oidc_enabled ? {
+      oidc = {
+        name    = "oidc-origin-policy_${replace(local.main_domain_sanitized, ".", "-")}"
+        comment = "Forward all cookies and query strings for OIDC"
+
+        cookies_config = {
+          cookie_behavior = "all"
+        }
+
+        headers_config = {
+          header_behavior = "none"
+        }
+
+        query_strings_config = {
+          query_string_behavior = "all"
+        }
+      }
+    } : {}
+  )
+
   ordered_cache_behavior = concat(
     [],
     local.oidc_enabled ? [
       {
-        path_pattern             = "/callback*"
-        target_origin_id         = "api-gateway-origin"
-        allowed_methods          = ["GET", "HEAD", "OPTIONS"]
-        cached_methods           = ["GET", "HEAD"]
-        viewer_protocol_policy   = "redirect-to-https"
-        compress                 = true
-        cache_policy_id          = aws_cloudfront_cache_policy.oidc[0].id
-        origin_request_policy_id = aws_cloudfront_origin_request_policy.oidc[0].id
+        path_pattern              = "/callback*"
+        target_origin_id          = "api-gateway-origin"
+        allowed_methods           = ["GET", "HEAD", "OPTIONS"]
+        cached_methods            = ["GET", "HEAD"]
+        viewer_protocol_policy    = "redirect-to-https"
+        compress                  = true
+        cache_policy_key          = "oidc"
+        origin_request_policy_key = "oidc"
       }
     ] : [],
     [
@@ -377,6 +429,68 @@ module "cdn" {
     }
   }
 
+  response_headers_policies = merge(
+    {},
+    local.custom_headers ? {
+      headers = {
+        name    = "${var.s3_bucket_name}-headers"
+        comment = "CloudFront response headers policy"
+
+        cors_config = length(var.s3_cors_rule) > 0 ? {
+          access_control_allow_credentials = var.response_header_access_control_allow_credentials
+          access_control_allow_headers     = { items = var.s3_cors_rule[0].allowed_headers }
+          access_control_allow_methods     = { items = var.s3_cors_rule[0].allowed_methods }
+          access_control_allow_origins     = { items = var.s3_cors_rule[0].allowed_origins }
+          origin_override                  = var.response_header_origin_override
+        } : null
+
+        security_headers_config = local.security_headers ? {
+          content_security_policy = var.custom_headers.content_security_policy != null ? {
+            content_security_policy = var.custom_headers.content_security_policy.policy
+            override                = var.custom_headers.content_security_policy.override
+          } : null
+
+          content_type_options = var.custom_headers.content_type_options != null ? {
+            override = var.custom_headers.content_type_options.override
+          } : null
+
+          frame_options = var.custom_headers.frame_options != null ? {
+            frame_option = var.custom_headers.frame_options.frame_option
+            override     = var.custom_headers.frame_options.override
+          } : null
+
+          referrer_policy = var.custom_headers.referrer_policy != null ? {
+            referrer_policy = var.custom_headers.referrer_policy.referrer_policy
+            override        = var.custom_headers.referrer_policy.override
+          } : null
+
+          xss_protection = var.custom_headers.xss_protection != null ? {
+            mode_block = var.custom_headers.xss_protection.mode_block
+            protection = var.custom_headers.xss_protection.protection
+            override   = var.custom_headers.xss_protection.override
+          } : null
+
+          strict_transport_security = var.custom_headers.strict_transport_security != null ? {
+            access_control_max_age_sec = var.custom_headers.strict_transport_security.access_control_max_age_sec
+            include_subdomains         = var.custom_headers.strict_transport_security.include_subdomains
+            preload                    = var.custom_headers.strict_transport_security.preload
+            override                   = var.custom_headers.strict_transport_security.override
+          } : null
+        } : null
+
+        custom_headers_config = var.custom_headers.headers != null && var.custom_headers.headers != {} ? {
+          items = [
+            for k, v in(var.custom_headers.headers != null ? var.custom_headers.headers : {}) : {
+              header   = k
+              value    = v.value
+              override = v.override
+            }
+          ]
+        } : null
+      }
+    } : {}
+  )
+
   restrictions = {
     geo_restriction = {
       restriction_type = var.restriction_type
@@ -394,51 +508,6 @@ module "cdn" {
   }
 }
 
-resource "aws_cloudfront_cache_policy" "oidc" {
-  count = local.oidc_enabled ? 1 : 0
-
-  name        = "no-cache-oidc-policy_${replace(local.main_domain_sanitized, ".", "-")}"
-  comment     = "Disable caching for OIDC"
-  default_ttl = 0
-  min_ttl     = 0
-  max_ttl     = 0
-
-  parameters_in_cache_key_and_forwarded_to_origin {
-    cookies_config {
-      cookie_behavior = "none"
-    }
-
-    headers_config {
-      header_behavior = "none"
-    }
-
-    query_strings_config {
-      query_string_behavior = "none"
-    }
-
-    #enable_accept_encoding_gzip = true
-  }
-}
-
-resource "aws_cloudfront_origin_request_policy" "oidc" {
-  count = local.oidc_enabled ? 1 : 0
-
-  name    = "oidc-origin-policy_${replace(local.main_domain_sanitized, ".", "-")}"
-  comment = "Forward all cookies and query strings for OIDC"
-
-  cookies_config {
-    cookie_behavior = "all"
-  }
-
-  headers_config {
-    header_behavior = "none"
-  }
-
-  query_strings_config {
-    query_string_behavior = "all"
-  }
-}
-
 resource "aws_route53_record" "this" {
   for_each = local.zones_by_domain
 
@@ -451,101 +520,4 @@ resource "aws_route53_record" "this" {
     zone_id                = module.cdn.cloudfront_distribution_hosted_zone_id
     evaluate_target_health = false
   }
-}
-
-resource "aws_cloudfront_response_headers_policy" "this" {
-  count   = local.custom_headers ? 1 : 0
-  name    = "${var.s3_bucket_name}-headers"
-  comment = "CloudFront response headers policy"
-
-  dynamic "cors_config" {
-    for_each = length(var.s3_cors_rule) > 0 ? [1] : []
-    content {
-      access_control_allow_credentials = var.response_header_access_control_allow_credentials
-
-      access_control_allow_headers {
-        items = var.s3_cors_rule[0].allowed_headers
-      }
-
-      access_control_allow_methods {
-        items = var.s3_cors_rule[0].allowed_methods
-      }
-
-      access_control_allow_origins {
-        items = var.s3_cors_rule[0].allowed_origins
-      }
-
-      origin_override = var.response_header_origin_override
-    }
-  }
-
-  dynamic "security_headers_config" {
-    for_each = local.security_headers ? [1] : []
-    content {
-      dynamic "content_security_policy" {
-        for_each = var.custom_headers.content_security_policy != null ? [1] : []
-        content {
-          content_security_policy = var.custom_headers.content_security_policy.policy
-          override                = var.custom_headers.content_security_policy.override
-        }
-      }
-
-      dynamic "content_type_options" {
-        for_each = var.custom_headers.content_type_options != null ? [1] : []
-        content {
-          override = var.custom_headers.content_type_options.override
-        }
-      }
-
-      dynamic "frame_options" {
-        for_each = var.custom_headers.frame_options != null ? [1] : []
-        content {
-          frame_option = var.custom_headers.frame_options.frame_option
-          override     = var.custom_headers.frame_options.override
-        }
-      }
-
-      dynamic "referrer_policy" {
-        for_each = var.custom_headers.referrer_policy != null ? [1] : []
-        content {
-          referrer_policy = var.custom_headers.referrer_policy.referrer_policy
-          override        = var.custom_headers.referrer_policy.override
-        }
-      }
-
-      dynamic "xss_protection" {
-        for_each = var.custom_headers.xss_protection != null ? [1] : []
-        content {
-          mode_block = var.custom_headers.xss_protection.mode_block
-          protection = var.custom_headers.xss_protection.protection
-          override   = var.custom_headers.xss_protection.override
-        }
-      }
-
-      dynamic "strict_transport_security" {
-        for_each = var.custom_headers.strict_transport_security != null ? [1] : []
-        content {
-          access_control_max_age_sec = var.custom_headers.strict_transport_security.access_control_max_age_sec
-          include_subdomains         = var.custom_headers.strict_transport_security.include_subdomains
-          preload                    = var.custom_headers.strict_transport_security.preload
-          override                   = var.custom_headers.strict_transport_security.override
-        }
-      }
-    }
-  }
-
-  dynamic "custom_headers_config" {
-    for_each = var.custom_headers.headers != null && var.custom_headers.headers != {} ? [1] : []
-    content {
-      dynamic "items" {
-        for_each = var.custom_headers.headers != null ? var.custom_headers.headers : {}
-        content {
-          header   = items.key
-          value    = items.value.value
-          override = items.value.override
-        }
-      }
-    }
-  }
-
 }
