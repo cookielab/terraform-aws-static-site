@@ -76,7 +76,8 @@ variable "logs_bucket" {
   default     = null
 }
 
-variable "logs_bucket_domain_name" {
+# tflint-ignore: terraform_unused_declarations
+variable "logs_bucket_domain_name" { # Deprecated; to be removed in upcomming releases
   description = "Bucket to store CloudFront logs"
   type        = string
   default     = null
