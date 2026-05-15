@@ -41,7 +41,7 @@ output "deploy_instance_profile_name" {
 
 output "s3_kms_key_arn" {
   description = "ARN of the KMS key used for the encryption of the objects in the S3 bucket with the static site assets"
-  value       = var.encrypt_with_kms ? aws_kms_key.this[0].arn : null
+  value       = module.kms.key_arn
 }
 
 output "oidc_callback_url" {
@@ -50,8 +50,14 @@ output "oidc_callback_url" {
 }
 
 output "moved_blocks" { # Temporary output
-  description = "Generated moved blocks for the `gitlab_project_variables` and `aws_route53_record`"
-  value = "Run following output through `sed 's/PLACEHOLDER/YOUR_MODULE_NAME/'` to generate moved blocks\n\n${join("",
+  description = "Generated moved blocks for the `gitlab_project_variables`, `aws_route53_record` and `aws_kms_alias`"
+  value = "Run following output through `sed 's/PLACEHOLDER/YOUR_MODULE_NAME/'` to generate moved blocks\n\n${join("", var.encrypt_with_kms ? [<<EOF
+moved {
+  from = module.PLACEHOLDER.aws_kms_alias.this[0]
+  to   = module.PLACEHOLDER.module.kms.aws_kms_alias.this["s3/${var.s3_bucket_name}"]
+}
+EOF
+    ] : [])}${join("",
     [
       for d in flatten([
         for i, z in var.zones_and_domains : z.domains if i > 0
