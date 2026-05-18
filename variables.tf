@@ -251,7 +251,8 @@ variable "custom_headers" {
       override = optional(bool, true)
     }), null)
   })
-  default = null
+  nullable = false
+  default  = {}
 }
 
 variable "extra_gitlab_cicd_variables" {
