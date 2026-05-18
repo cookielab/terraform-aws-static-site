@@ -83,42 +83,42 @@ EOF
         <<EOF
 moved {
   from = module.PLACEHOLDER.module.gitlab[0].gitlab_project_variable.cloudfront_distribution_id["${p}"]
-  to   = module.PLACEHOLDER.module.gitlab[0].gitlab_project_variable.this["${p}-AWS_CF_DISTRIBUTION_ID"]
+  to   = module.PLACEHOLDER.module.gitlab[0].gitlab_project_variable.this["${p}-AWS_CF_DISTRIBUTION_ID${var.gitlab_aws_env_vars_suffix}"]
 }
 EOF
         ,
         <<EOF
 moved {
   from = module.PLACEHOLDER.module.gitlab[0].gitlab_project_variable.aws_default_region["${p}"]
-  to   = module.PLACEHOLDER.module.gitlab[0].gitlab_project_variable.this["${p}-AWS_DEFAULT_REGION"]
+  to   = module.PLACEHOLDER.module.gitlab[0].gitlab_project_variable.this["${p}-AWS_DEFAULT_REGION${var.gitlab_aws_env_vars_suffix}"]
 }
 EOF
         ,
         <<EOF
 moved {
   from = module.PLACEHOLDER.module.gitlab[0].gitlab_project_variable.s3_bucket["${p}"]
-  to   = module.PLACEHOLDER.module.gitlab[0].gitlab_project_variable.this["${p}-AWS_S3_BUCKET"]
+  to   = module.PLACEHOLDER.module.gitlab[0].gitlab_project_variable.this["${p}-AWS_S3_BUCKET${var.gitlab_aws_env_vars_suffix}"]
 }
 EOF
         ,
         <<EOF
 moved {
   from = module.PLACEHOLDER.module.gitlab[0].gitlab_project_variable.site_aws_access_key_id["${p}"]
-  to   = module.PLACEHOLDER.module.gitlab[0].gitlab_project_variable.this["${p}-AWS_ACCESS_KEY_ID"]
+  to   = module.PLACEHOLDER.module.gitlab[0].gitlab_project_variable.this["${p}-AWS_ACCESS_KEY_ID${var.gitlab_aws_env_vars_suffix}"]
 }
 EOF
         ,
         <<EOF
 moved {
   from = module.PLACEHOLDER.module.gitlab[0].gitlab_project_variable.site_aws_secret_access_key["${p}"]
-  to   = module.PLACEHOLDER.module.gitlab[0].gitlab_project_variable.this["${p}-AWS_SECRET_ACCESS_KEY"]
+  to   = module.PLACEHOLDER.module.gitlab[0].gitlab_project_variable.this["${p}-AWS_SECRET_ACCESS_KEY${var.gitlab_aws_env_vars_suffix}"]
 }
 EOF
         ,
         <<EOF
 moved {
   from = module.PLACEHOLDER.module.gitlab[0].gitlab_project_variable.site_aws_role_arn["${p}"]
-  to   = module.PLACEHOLDER.module.gitlab[0].gitlab_project_variable.this["${p}-AWS_ROLE_ARN"]
+  to   = module.PLACEHOLDER.module.gitlab[0].gitlab_project_variable.this["${p}-AWS_ROLE_ARN${var.gitlab_aws_env_vars_suffix}"]
 }
 EOF
       ]
