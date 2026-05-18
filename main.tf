@@ -10,16 +10,22 @@ locals {
       for d in z.domains : d => z.zone_id
     }
   ]...)
-  main_domain_sanitized  = replace(local.main_domain, "*.", "")
-  custom_headers_present = var.custom_headers != null && var.custom_headers != {}
-  custom_headers         = local.custom_headers_present || length(var.s3_cors_rule) > 0 ? true : false
-  oidc_enabled           = length(var.oidc) == 0 ? false : true
-  security_headers = var.custom_headers == null ? false : ((var.custom_headers.content_security_policy != null ||
-    var.custom_headers.content_type_options != null ||
-    var.custom_headers.frame_options != null ||
-    var.custom_headers.referrer_policy != null ||
-    var.custom_headers.xss_protection != null ||
-  var.custom_headers.strict_transport_security != null) ? true : false)
+  main_domain_sanitized = replace(local.main_domain, "*.", "")
+  security_headers = anytrue([
+    var.custom_headers.content_security_policy != null,
+    var.custom_headers.content_type_options != null,
+    var.custom_headers.frame_options != null,
+    var.custom_headers.referrer_policy != null,
+    var.custom_headers.xss_protection != null,
+    var.custom_headers.strict_transport_security != null,
+  ])
+  custom_headers_present = (
+    local.security_headers ||
+    var.custom_headers.cors_rules != null ||
+    (var.custom_headers.headers != null && var.custom_headers.headers != {})
+  )
+  custom_headers = local.custom_headers_present || length(var.s3_cors_rule) > 0
+  oidc_enabled   = length(var.oidc) == 0 ? false : true
   tags = merge({
     Name : local.main_domain_sanitized
   }, var.tags)
