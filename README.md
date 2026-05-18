@@ -78,7 +78,7 @@ module "static-site" {
 | <a name="input_kms_key_policy"></a> [kms\_key\_policy](#input\_kms\_key\_policy) | Additional KSM key policy | `string` | `"{}"` | no |
 | <a name="input_logs_bucket"></a> [logs\_bucket](#input\_logs\_bucket) | Bucket to store CloudFront logs | `string` | `null` | no |
 | <a name="input_oidc"></a> [oidc](#input\_oidc) | List of OIDC providers | <pre>list(object({<br/>    application_name = string<br/>    application_id   = string<br/>    client_secret    = string<br/>    auth_url         = string<br/>    token_url        = string<br/>    session_druation = optional(number, 12 * 3600)<br/>  }))</pre> | `[]` | no |
-| <a name="input_oidc_callback_lambda_zip_path"></a> [oidc\_callback\_lambda\_zip\_path](#input\_oidc\_callback\_lambda\_zip\_path) | Callback Lambda zip file output path | `string` | `null` | no |
+| <a name="input_oidc_callback_lambda_zip_path"></a> [oidc\_callback\_lambda\_zip\_path](#input\_oidc\_callback\_lambda\_zip\_path) | Callback Lambda zip file output path for CI/CD | `string` | `null` | no |
 | <a name="input_oidc_edge_lambda_zip_path"></a> [oidc\_edge\_lambda\_zip\_path](#input\_oidc\_edge\_lambda\_zip\_path) | Edge Lambda zip file output path for CI/CD | `string` | `null` | no |
 | <a name="input_origin_path"></a> [origin\_path](#input\_origin\_path) | Cloudfront origin path | `string` | `""` | no |
 | <a name="input_override_status_code_403"></a> [override\_status\_code\_403](#input\_override\_status\_code\_403) | Override status code for 403 error | `number` | `403` | no |
