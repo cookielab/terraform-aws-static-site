@@ -1,36 +1,3 @@
-# tflint-ignore: terraform_unused_declarations
-variable "domain_zone_id" { # Deprecated; to be removed in upcomming releases
-  description = "Deprecated!  Use `zones_and_domains`.The ID of the hosted zone for domain"
-  type        = string
-  default     = null
-  validation {
-    condition     = (var.domain_zone_id == null)
-    error_message = "The domain_zone_id input is deprecated, Please use zones_and_domains instead."
-  }
-}
-
-# tflint-ignore: terraform_unused_declarations
-variable "domains" { # Deprecated; to be removed in upcomming releases
-  description = "Deprecated! Use `zones_and_domains`. List of domain aliases. You can also specify wildcard eg.: `*.example.com`"
-  type        = list(string)
-  default     = []
-  validation {
-    condition     = (length(var.domains) == 0)
-    error_message = "The domain input is deprecated, Please use zones_and_domains instead."
-  }
-}
-
-# tflint-ignore: terraform_unused_declarations
-variable "extra_domains" { # Deprecated; to be removed in upcomming releases
-  description = "Deprecated! Use `zones_and_domains`. Map of extra_domains with domain name and zone_id; This input can be kept initialy for moved blocks generaiton"
-  type        = map(string)
-  default     = {}
-  validation {
-    condition     = (length(var.extra_domains) == 0)
-    error_message = "The extra_domains input is deprecated, Please use zones_and_domains instead."
-  }
-}
-
 variable "zones_and_domains" {
   description = "Ordered list of Route53 with zone_id list of domain aliases. The first item is used as the main domain."
   type = list(object({
@@ -71,13 +38,6 @@ variable "s3_bucket_policy" {
 }
 
 variable "logs_bucket" {
-  description = "Bucket to store CloudFront logs"
-  type        = string
-  default     = null
-}
-
-# tflint-ignore: terraform_unused_declarations
-variable "logs_bucket_domain_name" { # Deprecated; to be removed in upcomming releases
   description = "Bucket to store CloudFront logs"
   type        = string
   default     = null
