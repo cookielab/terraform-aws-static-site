@@ -259,6 +259,8 @@ variable "extra_gitlab_cicd_variables" {
     hidden            = optional(bool, false)
     raw               = optional(bool, true)
     environment_scope = optional(string, "*")
+    variable_type     = optional(string, "env_var")
+    description       = optional(string, "")
   }))
   default = []
 }
