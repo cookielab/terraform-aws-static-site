@@ -31,7 +31,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 | ---- | ----------- | ---- | ------- | :------: |
-| <a name="input_cicd_variables"></a> [cicd\_variables](#input\_cicd\_variables) | list of additional GitLab CI/CD variables | <pre>list(object({<br/>    protected         = optional(bool, false)<br/>    hidden            = optional(bool, false)<br/>    masked            = optional(bool, false)<br/>    raw               = optional(bool, true)<br/>    key               = string<br/>    value             = string<br/>    environment_scope = optional(string, "*")<br/>  }))</pre> | `[]` | no |
+| <a name="input_cicd_variables"></a> [cicd\_variables](#input\_cicd\_variables) | list of additional GitLab CI/CD variables | <pre>list(object({<br/>    key               = string<br/>    value             = string<br/>    protected         = optional(bool, false)<br/>    hidden            = optional(bool, false)<br/>    masked            = optional(bool, false)<br/>    raw               = optional(bool, true)<br/>    environment_scope = optional(string, "*")<br/>    variable_type     = optional(string, "env_var")<br/>    description       = optional(string, "")<br/>  }))</pre> | `[]` | no |
 | <a name="input_project_ids"></a> [project\_ids](#input\_project\_ids) | List of IDs of GitLab projects in which the CI/CD variables will be created | `list(string)` | n/a | yes |
 
 ## Outputs

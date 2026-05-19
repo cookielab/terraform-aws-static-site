@@ -6,13 +6,15 @@ variable "project_ids" {
 variable "cicd_variables" {
   description = "list of additional GitLab CI/CD variables"
   type = list(object({
+    key               = string
+    value             = string
     protected         = optional(bool, false)
     hidden            = optional(bool, false)
     masked            = optional(bool, false)
     raw               = optional(bool, true)
-    key               = string
-    value             = string
     environment_scope = optional(string, "*")
+    variable_type     = optional(string, "env_var")
+    description       = optional(string, "")
   }))
   default = []
 }
