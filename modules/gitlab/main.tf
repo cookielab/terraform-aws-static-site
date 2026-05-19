@@ -29,4 +29,6 @@ resource "gitlab_project_variable" "this" {
   value = each.value.value
 
   environment_scope = each.value.environment_scope
+  variable_type     = each.value.variable_type
+  description       = each.value.description
 }
