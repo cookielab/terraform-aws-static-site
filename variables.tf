@@ -132,6 +132,12 @@ variable "deploy_pod_identity_role_arns" {
   description = "List of IAM role ARNs granted S3 deploy access via bucket policy (for EKS pod identity CI runners). The roles must have matching IAM identity policies granting S3 and CloudFront actions."
 }
 
+variable "create_pod_identity_deploy_role" {
+  type        = bool
+  default     = false
+  description = "Create an IAM role trusted by deploy_pod_identity_role_arns with S3 deploy and CloudFront invalidation permissions. The role ARN is published as AWS_ROLE_ARN in GitLab CI. Requires deploy_pod_identity_role_arns to be set."
+}
+
 variable "encrypt_with_kms" {
   type        = bool
   default     = false
