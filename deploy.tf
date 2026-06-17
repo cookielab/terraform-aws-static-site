@@ -85,7 +85,7 @@ resource "aws_iam_access_key" "deploy" {
 }
 
 data "aws_iam_policy_document" "deploy" {
-  count = var.enable_deploy_user || var.enable_deploy_role ? 1 : 0
+  count = var.enable_deploy_user || var.enable_deploy_role || var.create_pod_identity_deploy_role ? 1 : 0
   statement {
     effect = "Allow"
     actions = [
@@ -109,6 +109,32 @@ data "aws_iam_policy_document" "deploy" {
   }
 }
 
+data "aws_iam_policy_document" "pod_identity_deploy_assume" {
+  count = var.create_pod_identity_deploy_role ? 1 : 0
+  statement {
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = var.deploy_pod_identity_role_arns
+    }
+    actions = ["sts:AssumeRole", "sts:TagSession"]
+  }
+}
+
+resource "aws_iam_role" "pod_identity_deploy" {
+  count              = var.create_pod_identity_deploy_role ? 1 : 0
+  name               = "zvirt-${local.main_domain_sanitized}-pod-identity-deploy"
+  assume_role_policy = data.aws_iam_policy_document.pod_identity_deploy_assume[0].json
+  tags               = var.tags
+}
+
+resource "aws_iam_role_policy" "pod_identity_deploy" {
+  count  = var.create_pod_identity_deploy_role ? 1 : 0
+  name   = "S3Deploy-CFInvalidate"
+  role   = aws_iam_role.pod_identity_deploy[0].id
+  policy = data.aws_iam_policy_document.deploy[0].json
+}
+
 resource "aws_iam_user_policy" "deploy" {
   count = var.enable_deploy_user ? 1 : 0
 
@@ -125,16 +151,18 @@ module "gitlab" {
   gitlab_project_ids = local.gitlab_project_ids
   gitlab_environment = var.gitlab_environment
 
-  enable_deploy_role             = var.enable_deploy_role
-  enable_deploy_user             = var.enable_deploy_user
-  extra_gitlab_cicd_variables    = var.extra_gitlab_cicd_variables
-  aws_s3_bucket_name             = module.s3_bucket.s3_bucket_id
-  aws_cloudfront_distribution_id = aws_cloudfront_distribution.this.id
-  aws_role_arn                   = var.enable_deploy_role ? aws_iam_role.deploy[0].arn : null
-  aws_access_key_id              = var.enable_deploy_user ? aws_iam_access_key.deploy[0].id : null
-  aws_secret_access_key          = var.enable_deploy_user ? aws_iam_access_key.deploy[0].secret : null
-  aws_default_region             = data.aws_region.current.name
-  aws_env_vars_suffix            = var.aws_env_vars_suffix
+  enable_deploy_role                  = var.enable_deploy_role
+  enable_deploy_user                  = var.enable_deploy_user
+  create_pod_identity_deploy_role     = var.create_pod_identity_deploy_role
+  extra_gitlab_cicd_variables         = var.extra_gitlab_cicd_variables
+  aws_s3_bucket_name                  = module.s3_bucket.s3_bucket_id
+  aws_cloudfront_distribution_id      = aws_cloudfront_distribution.this.id
+  aws_role_arn                        = var.enable_deploy_role ? aws_iam_role.deploy[0].arn : null
+  aws_pod_identity_deploy_role_arn    = var.create_pod_identity_deploy_role ? aws_iam_role.pod_identity_deploy[0].arn : null
+  aws_access_key_id                   = var.enable_deploy_user ? aws_iam_access_key.deploy[0].id : null
+  aws_secret_access_key               = var.enable_deploy_user ? aws_iam_access_key.deploy[0].secret : null
+  aws_default_region                  = data.aws_region.current.name
+  aws_env_vars_suffix                 = var.aws_env_vars_suffix
 }
 
 moved {

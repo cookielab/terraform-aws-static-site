@@ -31,6 +31,16 @@ variable "enable_deploy_user" {
   type = bool
 }
 
+variable "create_pod_identity_deploy_role" {
+  type    = bool
+  default = false
+}
+
+variable "aws_pod_identity_deploy_role_arn" {
+  type    = string
+  default = null
+}
+
 variable "aws_secret_access_key" {
   type      = string
   sensitive = true
