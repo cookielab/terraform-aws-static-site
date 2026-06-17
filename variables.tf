@@ -126,6 +126,12 @@ variable "enable_deploy_user" {
   description = "Toggle s3 deploy user creation"
 }
 
+variable "deploy_pod_identity_role_arns" {
+  type        = list(string)
+  default     = []
+  description = "List of IAM role ARNs granted S3 deploy access via bucket policy (for EKS pod identity CI runners). The roles must have matching IAM identity policies granting S3 and CloudFront actions."
+}
+
 variable "encrypt_with_kms" {
   type        = bool
   default     = false

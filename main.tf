@@ -57,6 +57,29 @@ data "aws_iam_policy_document" "s3_bucket_policy" {
     var.s3_bucket_policy,
   ]
 
+  dynamic "statement" {
+    for_each = length(var.deploy_pod_identity_role_arns) > 0 ? [1] : []
+    content {
+      sid    = "AllowPodIdentityDeploy"
+      effect = "Allow"
+      principals {
+        type        = "AWS"
+        identifiers = var.deploy_pod_identity_role_arns
+      }
+      actions = [
+        "s3:DeleteObject",
+        "s3:GetBucketLocation",
+        "s3:GetObject",
+        "s3:ListBucket",
+        "s3:PutObject",
+      ]
+      resources = [
+        "arn:aws:s3:::${var.s3_bucket_name}",
+        "arn:aws:s3:::${var.s3_bucket_name}/*",
+      ]
+    }
+  }
+
   statement {
     sid = "AllowCloudFrontServicePrincipalReadOnly"
     actions = [
