@@ -110,6 +110,21 @@ resource "gitlab_project_variable" "site_aws_secret_access_key" {
   environment_scope = var.gitlab_environment
 }
 
+resource "gitlab_project_variable" "pod_identity_deploy_role_arn" {
+  for_each = var.create_pod_identity_deploy_role ? data.gitlab_project.this : {}
+
+  project = each.value.id
+
+  protected = false
+  masked    = false
+  raw       = true
+
+  key   = "AWS_ROLE_ARN${var.aws_env_vars_suffix}"
+  value = var.aws_pod_identity_deploy_role_arn
+
+  environment_scope = var.gitlab_environment
+}
+
 resource "gitlab_project_variable" "extra" {
   for_each = local.cicd_variable_flat_map
 
