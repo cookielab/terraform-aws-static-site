@@ -1,43 +1,40 @@
-variable "domain_zone_id" {
-  type        = string
-  description = "The ID of the hosted zone for domain"
-}
+variable "zones_and_domains" {
+  description = "Ordered list of Route53 with zone_id list of domain aliases. The first item is used as the main domain."
+  type = list(object({
+    zone_id = string
+    domains = list(string)
+  }))
 
-variable "domains" {
-  type        = list(string)
-  description = "List of domain aliases. You can also specify wildcard eg.: `*.example.com`"
   validation {
-    condition     = length(var.domains) >= 1
-    error_message = "The domains value must contain at least one domain."
+    condition = (
+      length(var.zones_and_domains) >= 1
+      &&
+      alltrue([
+        for z in var.zones_and_domains :
+        length(trimspace(z.zone_id)) > 0
+        && length(z.domains) >= 1
+        && alltrue([for d in z.domains : length(trimspace(d)) > 0])
+      ])
+    )
+    error_message = "zones_and_domains must contain at least 1 zone, each zone_id must be non-empty, and each zone must have at least 1 non-empty domain."
   }
 }
 
 variable "s3_bucket_name" {
-  type = string
+  description = "The name for the S3 bucket hosting the website"
+  type        = string
+}
+
+variable "s3_bucket_namespace" {
+  description = "Namespace for the bucket. Determines bucket naming scope. Valid values: account-regional, global. Defaults to global (AWS)"
+  type        = string
+  default     = null
 }
 
 variable "s3_bucket_policy" {
+  description = "Additional S3 bucket policy"
   type        = string
   default     = "{}"
-  description = "Additional S3 bucket policy"
-}
-
-variable "gitlab_project_ids" {
-  description = "Integrates with GitLab CI/CD to deploy site and invalidate CloudFront cache"
-  type        = list(string)
-  default     = []
-}
-
-variable "gitlab_project_id" {
-  type        = string
-  description = "Deprecated: Use gitlab_project_ids instead"
-  default     = ""
-}
-
-variable "gitlab_environment" {
-  description = "GitLab environment name"
-  type        = string
-  default     = "*"
 }
 
 variable "logs_bucket" {
@@ -46,9 +43,22 @@ variable "logs_bucket" {
   default     = null
 }
 
-variable "logs_bucket_domain_name" {
-  type    = string
-  default = null
+variable "gitlab_aws_env_vars_suffix" {
+  description = "Append suffix for Gitlab CI/CD environment variables if needed"
+  type        = string
+  default     = ""
+}
+
+variable "gitlab_project_ids" {
+  description = "Integrates with GitLab CI/CD to deploy site and invalidate CloudFront cache"
+  type        = list(string)
+  default     = []
+}
+
+variable "gitlab_environment" {
+  description = "GitLab environment name"
+  type        = string
+  default     = "*"
 }
 
 variable "cloudfront_price_class" {
@@ -70,8 +80,9 @@ variable "override_status_code_403" {
 }
 
 variable "tags" {
-  type    = map(string)
-  default = {}
+  description = "Map of tags to be set on resources"
+  type        = map(string)
+  default     = {}
 }
 
 variable "waf_acl_arn" {
@@ -93,6 +104,7 @@ variable "restrictions_locations" {
 }
 
 variable "proxy_paths" {
+  description = "Configure CloudFront to forward specific URL path prefixes (e.g. /api, /auth) to different backend origins instead of the default origin."
   type = list(object({
     origin_domain = string
     path_prefix   = string
@@ -101,6 +113,7 @@ variable "proxy_paths" {
 }
 
 variable "functions" {
+  description = "CloudFront Functions ARN to run on incoming requests and/or outgoing responses (viewer-request / viewer-response) for the default cache behavior."
   type = object({
     viewer_request  = optional(string)
     viewer_response = optional(string)
@@ -109,21 +122,21 @@ variable "functions" {
 }
 
 variable "enable_deploy_role" {
+  description = "Toggle IAM role creation for S3 deploy & CloudFront invalidation. Trust policy is assembled from two optional sources: GitLab OIDC web identity (when `gitlab_project_ids` is set; requires existing `aws_iam_openid_connect_provider` matching the gitlab domain) and EC2 service trust (when `create_instance_profile` is true)."
   type        = bool
   default     = false
-  description = "Toggle IAM role creation for S3 deploy & CloudFront invalidation. Trust policy is assembled from two optional sources: GitLab OIDC web identity (when gitlab_project_ids/gitlab_project_id is set; requires existing aws_iam_openid_connect_provider matching the gitlab domain) and EC2 service trust (when create_instance_profile is true)."
 }
 
 variable "create_instance_profile" {
   type        = bool
   default     = false
-  description = "Create instance profile for EC2 and add ec2.amazonaws.com service trust to the deploy role's assume role policy. Requires enable_deploy_role = true."
+  description = "Create instance profile for EC2 and add ec2.amazonaws.com service trust to the deploy role's assume role policy. Requires `enable_deploy_role = true.`"
 }
 
 variable "enable_deploy_user" {
+  description = "Toggle s3 deploy user creation"
   type        = bool
   default     = true
-  description = "Toggle s3 deploy user creation"
 }
 
 variable "deploy_pod_identity_role_arns" {
@@ -133,51 +146,37 @@ variable "deploy_pod_identity_role_arns" {
 }
 
 variable "encrypt_with_kms" {
+  description = "Enable server side s3 bucket encryption with KMS key"
   type        = bool
   default     = false
-  description = "Enable server side s3 bucket encryption with KMS key"
 }
 
 variable "kms_deletion_window_in_days" {
+  description = "The waiting period, specified in number of days. After the waiting period ends, AWS KMS deletes the KMS key"
   type        = number
   default     = 30
-  description = "The waiting period, specified in number of days. After the waiting period ends, AWS KMS deletes the KMS key"
 }
 
 variable "kms_key_policy" {
+  description = "Additional KSM key policy"
   type        = string
   default     = "{}"
-  description = "Additional KSM key policy"
 }
 
 variable "origin_path" {
-  type        = string
-  default     = ""
   description = "Cloudfront origin path"
-}
-
-variable "min_ttl" {
-  description = "Minimum amount of time that you want objects to stay in a CloudFront cache"
-  type        = number
-  default     = 0
-}
-
-variable "default_ttl" {
-  description = "Default amount of time that you want objects to stay in a CloudFront cache"
-  type        = number
-  default     = 3600
-}
-
-variable "max_ttl" {
-  description = "Maximum amount of time that you want objects to stay in a CloudFront cache"
-  type        = number
-  default     = 86400
-}
-
-variable "aws_env_vars_suffix" {
-  description = "Append suffix for Gitlab CI/CD environment variables if needed"
   type        = string
   default     = ""
+}
+
+variable "cache_ttl" {
+  description = "Cache TTLs configuration for CloudFront distribition; sets minimum/maximum and default amount of time the objects stays in cache"
+  type = object({
+    min     = optional(number, 0)
+    max     = optional(number, 86400)
+    default = optional(number, 3600)
+  })
+  default = {}
 }
 
 variable "s3_cors_rule" {
@@ -193,22 +192,19 @@ variable "s3_cors_rule" {
 }
 
 variable "response_header_origin_override" {
-  type    = bool
-  default = false
+  description = "If enabled, CloudFront will replace headers returned by the origin (such as CORS or security headers) with values defined in the response headers policy."
+  type        = bool
+  default     = false
 }
 
 variable "response_header_access_control_allow_credentials" {
-  type    = bool
-  default = false
-}
-
-variable "extra_domains" {
-  type        = map(string)
-  description = "Map of extra_domains with domain name and zone_id"
-  default     = {}
+  description = "A Boolean value that CloudFront uses as the value for the Access-Control-Allow-Credentials HTTP response header."
+  type        = bool
+  default     = false
 }
 
 variable "custom_headers" {
+  description = "CloudFront response headers configuration (custom headers, CORS, and security headers) with optional origin override behavior."
   type = object({
     headers = optional(map(object({
       override = optional(bool, true)
@@ -255,19 +251,24 @@ variable "custom_headers" {
       override = optional(bool, true)
     }), null)
   })
-  default = null
+  nullable = false
+  default  = {}
 }
 
 variable "extra_gitlab_cicd_variables" {
-  type = list(object({
-    protected = optional(bool, false)
-    masked    = optional(bool, false)
-    raw       = optional(bool, true)
-    key       = string
-    value     = string
-  }))
-  default     = []
   description = "List of additional gitlab CI/CD variables"
+  type = list(object({
+    key               = string
+    value             = string
+    protected         = optional(bool, false)
+    masked            = optional(bool, false)
+    hidden            = optional(bool, false)
+    raw               = optional(bool, true)
+    environment_scope = optional(string, "*")
+    variable_type     = optional(string, "env_var")
+    description       = optional(string, "")
+  }))
+  default = []
 }
 
 variable "oidc" {
@@ -284,11 +285,13 @@ variable "oidc" {
 }
 
 variable "oidc_edge_lambda_zip_path" {
-  type    = string
-  default = null
+  description = "Edge Lambda zip file output path for CI/CD"
+  type        = string
+  default     = null
 }
 
 variable "oidc_callback_lambda_zip_path" {
-  type    = string
-  default = null
+  description = "Callback Lambda zip file output path for CI/CD"
+  type        = string
+  default     = null
 }

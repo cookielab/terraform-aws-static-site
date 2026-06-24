@@ -3,13 +3,8 @@ terraform {
 
   required_providers {
     aws = {
-      source                = "hashicorp/aws"
-      version               = ">= 5.27"
-      configuration_aliases = [aws.us_east_1]
-    }
-    gitlab = {
-      source  = "gitlabhq/gitlab"
-      version = ">= 15.7, < 20.0"
+      source  = "hashicorp/aws"
+      version = ">= 6.44"
     }
   }
 }
