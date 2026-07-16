@@ -46,11 +46,24 @@ data "aws_iam_policy_document" "assume_role_ec2" {
   }
 }
 
+data "aws_iam_policy_document" "assume_role_pod_identity" {
+  count = var.enable_deploy_role && length(var.deploy_pod_identity_role_arns) > 0 ? 1 : 0
+  statement {
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = var.deploy_pod_identity_role_arns
+    }
+    actions = ["sts:AssumeRole", "sts:TagSession"]
+  }
+}
+
 data "aws_iam_policy_document" "assume_role" {
   count = var.enable_deploy_role ? 1 : 0
   source_policy_documents = concat(
     data.aws_iam_policy_document.assume_role_web_identity[*].json,
     data.aws_iam_policy_document.assume_role_ec2[*].json,
+    data.aws_iam_policy_document.assume_role_pod_identity[*].json,
   )
 }
 
