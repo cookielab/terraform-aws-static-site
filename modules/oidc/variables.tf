@@ -1,6 +1,6 @@
 variable "application_domain" {
-  type        = string
   description = "Application domain for redirect after oidc login"
+  type        = string
 }
 
 variable "project_name" {
@@ -23,13 +23,15 @@ variable "oidc" {
 }
 
 variable "edge_lambda_zip_path" {
-  type    = string
-  default = null
+  description = "Edge Lambda zip file output path for CI/CD"
+  type        = string
+  default     = null
 }
 
 variable "callback_lambda_zip_path" {
-  type    = string
-  default = null
+  description = "Callback Lambda zip file output path for CI/CD"
+  type        = string
+  default     = null
 }
 
 variable "tags" {
