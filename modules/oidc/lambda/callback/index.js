@@ -7,13 +7,46 @@ const crypto = require('crypto');
 const configList = JSON.parse(process.env.OIDC_CONFIG_JSON || '[]');
 const config = Object.fromEntries(configList.map(cfg => [cfg.application_name, cfg]));
 
+function cookieValue(entry) {
+  const index = entry.indexOf('=');
+  return index === -1 ? '' : entry.slice(index + 1);
+}
+
+function cookiesFromEvent(event) {
+  const cookies = [...(event.cookies || [])];
+  const cookieHeader = event.headers?.cookie || event.headers?.Cookie;
+  if (cookieHeader) {
+    cookies.push(...cookieHeader.split(';').map(entry => entry.trim()));
+  }
+  return cookies;
+}
+
+function providerKeyFromState(state) {
+  if (!state || !state.includes('.')) return null;
+  const encoded = state.slice(state.lastIndexOf('.') + 1);
+  try {
+    return Buffer.from(encoded, 'base64url').toString('utf8');
+  } catch (error) {
+    console.log('Callback Lambda - Failed to decode provider from state:', error.message);
+    return null;
+  }
+}
+
+function resolveProviderKey(queryAuth, cookieAuth, state) {
+  for (const candidate of [queryAuth, cookieAuth, providerKeyFromState(state)]) {
+    if (candidate && config[candidate]) return candidate;
+  }
+  const keys = Object.keys(config);
+  return keys.length === 1 ? keys[0] : null;
+}
+
 exports.handler = (event, context, callback) => {
   //console.log('Callback Lambda - Received event:', JSON.stringify(event, null, 2));
 
   // API Gateway payload 2.0 format
   const query = event.queryStringParameters || {};
   const headers = event.headers || {};
-  const cookies = event.cookies || [];
+  const cookies = cookiesFromEvent(event);
   let providerKey = query.auth;
   const code = query.code;
   const state = query.state;
@@ -22,14 +55,13 @@ exports.handler = (event, context, callback) => {
   //console.log('Callback Lambda - Headers:', JSON.stringify(headers, null, 2));
   //console.log('Callback Lambda - Cookies from event.cookies:', cookies);
 
-  // Try to read providerKey from cookie if not in query
-  if (!providerKey && cookies.length > 0) {
-    const authCookie = cookies.find(c => c.startsWith('auth_provider='));
-    if (authCookie) {
-      providerKey = authCookie.split('=')[1];
-      console.log('Callback Lambda - Retrieved providerKey from cookie:', providerKey);
-    }
+  const authCookie = cookies.find(c => c.startsWith('auth_provider='));
+  const cookieProviderKey = authCookie ? cookieValue(authCookie) : null;
+  if (cookieProviderKey) {
+    console.log('Callback Lambda - Retrieved providerKey from cookie:', cookieProviderKey);
   }
+
+  providerKey = resolveProviderKey(query.auth, cookieProviderKey, state);
 
   if (!providerKey || !config[providerKey]) {
     console.log('Callback Lambda - No matching provider for:', providerKey);
@@ -55,7 +87,7 @@ exports.handler = (event, context, callback) => {
     //console.log('Callback Lambda - Processing cookies:', cookies);
     const stateCookieEntry = cookies.find(c => c.startsWith('state='));
     if (stateCookieEntry) {
-      stateCookie = stateCookieEntry.split('=')[1];
+      stateCookie = cookieValue(stateCookieEntry);
       //console.log('Callback Lambda - Found state cookie:', stateCookie);
     } else {
       //console.log('Callback Lambda - State cookie not found in:', cookies);

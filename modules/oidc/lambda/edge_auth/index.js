@@ -3,9 +3,20 @@
 const crypto = require('crypto');
 const querystring = require('querystring');
 
-// Load config as list and convert to map by application_name
-const configList = require('./config.json');
+// Load config as list and convert to map by application_name. Lambda@Edge uses the
+// generated config.json; tests can inject OIDC_CONFIG_JSON because Lambda@Edge does not
+// support environment variables in production.
+const configList = process.env.OIDC_CONFIG_JSON ? JSON.parse(process.env.OIDC_CONFIG_JSON) : require('./config.json');
 const config = Object.fromEntries(configList.map(cfg => [cfg.application_name, cfg]));
+
+function cookieValue(entry) {
+  const index = entry.indexOf('=');
+  return index === -1 ? '' : entry.slice(index + 1);
+}
+
+function base64UrlEncode(value) {
+  return Buffer.from(value, 'utf8').toString('base64url');
+}
 
 exports.handler = (event, context, callback) => {
   try {
@@ -34,13 +45,13 @@ exports.handler = (event, context, callback) => {
     let session = null;
     if (headers.cookie && Array.isArray(headers.cookie)) {
       for (const cookie of headers.cookie) {
-        const cookieValue = cookie.value || '';
-        const cookieEntries = cookieValue.split('; ').map(entry => entry.trim());
+        const cookieHeader = cookie.value || '';
+        const cookieEntries = cookieHeader.split('; ').map(entry => entry.trim());
         for (const entry of cookieEntries) {
           if (entry.startsWith('session=')) {
-            session = entry.split('=')[1];
+            session = cookieValue(entry);
           } else if (entry.startsWith('auth_provider=')) {
-            providerKey = entry.split('=')[1];
+            providerKey = cookieValue(entry);
           }
         }
         if (session && providerKey) break;
@@ -49,14 +60,15 @@ exports.handler = (event, context, callback) => {
       console.log('Edge Lambda - No cookie header present or not an array');
     }
 
-    // Determine provider for this request
-    // If providerKey not found in cookie, use query param ?auth=... or fallback to default
-    let newlySelectedProviderKey = null;
-    if (!providerKey) {
-      newlySelectedProviderKey = params.auth || Object.keys(config)[0];
-      providerKey = newlySelectedProviderKey;
-      console.log('Edge Lambda - No auth_provider cookie, using query param or default:', providerKey);
+    // Determine provider for this request. Stale cookies should not lock a viewer out;
+    // fall back to a valid query param or the default configured provider.
+    let selectedProviderKey = null;
+    if (!providerKey || !config[providerKey]) {
+      selectedProviderKey = params.auth && config[params.auth] ? params.auth : Object.keys(config)[0];
+      providerKey = selectedProviderKey;
+      console.log('Edge Lambda - Using query param or default provider:', providerKey);
     } else {
+      selectedProviderKey = providerKey;
       console.log('Edge Lambda - Using provider from cookie:', providerKey);
     }
 
@@ -126,7 +138,7 @@ exports.handler = (event, context, callback) => {
     }
 
     const provider = config[providerKey];
-    const state = crypto.randomBytes(16).toString('hex');
+    const state = `${crypto.randomBytes(16).toString('hex')}.${base64UrlEncode(providerKey)}`;
     const loginUrl = `${provider.auth_url}?` +
       `client_id=${encodeURIComponent(provider.client_id)}` +
       `&redirect_uri=${encodeURIComponent(provider.redirect_uri)}` +
@@ -141,13 +153,10 @@ exports.handler = (event, context, callback) => {
       value: `state=${state}; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=300`,
     }];
 
-    if (newlySelectedProviderKey) {
-      const domain = new URL(provider.redirect_after_login).hostname;
-      setCookieHeaders.push({
-        key: 'Set-Cookie',
-        value: `auth_provider=${newlySelectedProviderKey}; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=300`,
-      });
-    }
+    setCookieHeaders.push({
+      key: 'Set-Cookie',
+      value: `auth_provider=${selectedProviderKey}; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=900`,
+    });
 
     return callback(null, {
       status: '302',
