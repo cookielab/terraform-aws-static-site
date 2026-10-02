@@ -59,3 +59,16 @@ jobs:
         run: terraform init
       - name: Terraform validate
         run: terraform validate
+
+  test:
+    name: OIDC Lambda Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Run OIDC Lambda tests
+        run: node --test modules/oidc/lambda/*.test.js
