@@ -94,10 +94,12 @@ variable "restrictions_locations" {
 
 variable "proxy_paths" {
   type = list(object({
-    origin_domain = string
-    path_prefix   = string
+    origin_domain            = string
+    path_prefix              = string
+    origin_request_policy_id = optional(string)
   }))
-  default = []
+  default     = []
+  description = "Paths forwarded to HTTPS origins without caching. Override origin_request_policy_id for origins such as API Gateway that must not receive the viewer Host header."
 }
 
 variable "functions" {

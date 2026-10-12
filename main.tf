@@ -452,8 +452,11 @@ resource "aws_cloudfront_distribution" "this" {
 
       viewer_protocol_policy = "redirect-to-https"
 
-      origin_request_policy_id = data.aws_cloudfront_origin_request_policy.managed_all_viewer_and_cloudfront_headers.id
-      cache_policy_id          = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
+      origin_request_policy_id = coalesce(
+        ordered_cache_behavior.value.origin_request_policy_id,
+        data.aws_cloudfront_origin_request_policy.managed_all_viewer_and_cloudfront_headers.id,
+      )
+      cache_policy_id = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
     }
   }
 

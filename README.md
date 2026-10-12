@@ -24,6 +24,24 @@ module "static-site" {
 }
 ```
 
+For an API Gateway proxy, select an origin request policy that excludes the
+viewer Host header. CloudFront will use the origin hostname instead:
+
+```terraform
+data "aws_cloudfront_origin_request_policy" "api" {
+  name = "Managed-AllViewerExceptHostHeader"
+}
+
+# Add this to the module's inputs.
+proxy_paths = [{
+  origin_domain            = "example.execute-api.eu-west-1.amazonaws.com"
+  path_prefix              = "/api"
+  origin_request_policy_id = data.aws_cloudfront_origin_request_policy.api.id
+}]
+```
+
+Omitting `origin_request_policy_id` keeps the existing proxy policy.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -116,7 +134,7 @@ module "static-site" {
 | <a name="input_origin_path"></a> [origin\_path](#input\_origin\_path) | Cloudfront origin path | `string` | `""` | no |
 | <a name="input_override_status_code_403"></a> [override\_status\_code\_403](#input\_override\_status\_code\_403) | Override status code for 403 error | `number` | `403` | no |
 | <a name="input_override_status_code_404"></a> [override\_status\_code\_404](#input\_override\_status\_code\_404) | Override status code for 404 error | `number` | `200` | no |
-| <a name="input_proxy_paths"></a> [proxy\_paths](#input\_proxy\_paths) | n/a | <pre>list(object({<br/>    origin_domain = string<br/>    path_prefix   = string<br/>  }))</pre> | `[]` | no |
+| <a name="input_proxy_paths"></a> [proxy\_paths](#input\_proxy\_paths) | Paths forwarded to HTTPS origins without caching. Override origin\_request\_policy\_id for origins such as API Gateway that must not receive the viewer Host header. | <pre>list(object({<br/>    origin_domain            = string<br/>    path_prefix              = string<br/>    origin_request_policy_id = optional(string)<br/>  }))</pre> | `[]` | no |
 | <a name="input_response_header_access_control_allow_credentials"></a> [response\_header\_access\_control\_allow\_credentials](#input\_response\_header\_access\_control\_allow\_credentials) | n/a | `bool` | `false` | no |
 | <a name="input_response_header_origin_override"></a> [response\_header\_origin\_override](#input\_response\_header\_origin\_override) | n/a | `bool` | `false` | no |
 | <a name="input_restriction_type"></a> [restriction\_type](#input\_restriction\_type) | Apply for geo restrictions, values: none, whitelist, blacklist | `string` | `"none"` | no |
