@@ -69,6 +69,17 @@ variable "override_status_code_403" {
   default     = 403
 }
 
+variable "error_page_path" {
+  description = "CloudFront response page path for origin 403 and 404 errors. Ignored when OIDC is enabled."
+  type        = string
+  default     = "/index.html"
+
+  validation {
+    condition     = startswith(var.error_page_path, "/")
+    error_message = "The error page path must start with \"/\"."
+  }
+}
+
 variable "tags" {
   type    = map(string)
   default = {}

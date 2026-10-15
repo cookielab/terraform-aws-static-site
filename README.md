@@ -24,6 +24,13 @@ module "static-site" {
 }
 ```
 
+For a static site with a dedicated not-found page, set `error_page_path = "/404.html"`
+and both `override_status_code_403 = 404` and `override_status_code_404 = 404`.
+Upload that page with the site. S3 origins can return 403 for missing objects when
+CloudFront does not have permission to list the bucket. Existing users keep
+`/index.html` as the default error body. These settings apply distribution-wide,
+including proxy paths, and are ignored when OIDC is enabled.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -98,6 +105,7 @@ module "static-site" {
 | <a name="input_enable_deploy_role"></a> [enable\_deploy\_role](#input\_enable\_deploy\_role) | Toggle IAM role creation for S3 deploy & CloudFront invalidation. Trust policy is assembled from two optional sources: GitLab OIDC web identity (when gitlab\_project\_ids/gitlab\_project\_id is set; requires existing aws\_iam\_openid\_connect\_provider matching the gitlab domain) and EC2 service trust (when create\_instance\_profile is true). | `bool` | `false` | no |
 | <a name="input_enable_deploy_user"></a> [enable\_deploy\_user](#input\_enable\_deploy\_user) | Toggle s3 deploy user creation | `bool` | `true` | no |
 | <a name="input_encrypt_with_kms"></a> [encrypt\_with\_kms](#input\_encrypt\_with\_kms) | Enable server side s3 bucket encryption with KMS key | `bool` | `false` | no |
+| <a name="input_error_page_path"></a> [error\_page\_path](#input\_error\_page\_path) | CloudFront response page path for origin 403 and 404 errors. Ignored when OIDC is enabled. | `string` | `"/index.html"` | no |
 | <a name="input_extra_domains"></a> [extra\_domains](#input\_extra\_domains) | Map of extra\_domains with domain name and zone\_id | `map(string)` | `{}` | no |
 | <a name="input_extra_gitlab_cicd_variables"></a> [extra\_gitlab\_cicd\_variables](#input\_extra\_gitlab\_cicd\_variables) | List of additional gitlab CI/CD variables | <pre>list(object({<br/>    protected = optional(bool, false)<br/>    masked    = optional(bool, false)<br/>    raw       = optional(bool, true)<br/>    key       = string<br/>    value     = string<br/>  }))</pre> | `[]` | no |
 | <a name="input_functions"></a> [functions](#input\_functions) | n/a | <pre>object({<br/>    viewer_request  = optional(string)<br/>    viewer_response = optional(string)<br/>  })</pre> | `{}` | no |
