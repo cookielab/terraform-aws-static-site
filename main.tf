@@ -354,12 +354,12 @@ resource "aws_cloudfront_distribution" "this" {
       {
         error_code         = 404
         response_code      = var.override_status_code_404
-        response_page_path = "/index.html"
+        response_page_path = var.error_page_path
       },
       {
         error_code         = 403
         response_code      = var.override_status_code_403
-        response_page_path = "/index.html"
+        response_page_path = var.error_page_path
       }
     ]
 
