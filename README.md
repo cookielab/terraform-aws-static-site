@@ -140,6 +140,8 @@ including proxy paths, and are ignored when OIDC is enabled.
 | Name | Description |
 | ---- | ----------- |
 | <a name="output_aws_access_key_id"></a> [aws\_access\_key\_id](#output\_aws\_access\_key\_id) | n/a |
+| <a name="output_aws_cloudfront_distribution_domain_name"></a> [aws\_cloudfront\_distribution\_domain\_name](#output\_aws\_cloudfront\_distribution\_domain\_name) | n/a |
+| <a name="output_aws_cloudfront_distribution_hosted_zone_id"></a> [aws\_cloudfront\_distribution\_hosted\_zone\_id](#output\_aws\_cloudfront\_distribution\_hosted\_zone\_id) | n/a |
 | <a name="output_aws_cloudfront_distribution_id"></a> [aws\_cloudfront\_distribution\_id](#output\_aws\_cloudfront\_distribution\_id) | n/a |
 | <a name="output_aws_s3_bucket_arn"></a> [aws\_s3\_bucket\_arn](#output\_aws\_s3\_bucket\_arn) | n/a |
 | <a name="output_aws_s3_bucket_name"></a> [aws\_s3\_bucket\_name](#output\_aws\_s3\_bucket\_name) | n/a |

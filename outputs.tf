@@ -6,6 +6,14 @@ output "aws_cloudfront_distribution_id" {
   value = aws_cloudfront_distribution.this.id
 }
 
+output "aws_cloudfront_distribution_domain_name" {
+  value = aws_cloudfront_distribution.this.domain_name
+}
+
+output "aws_cloudfront_distribution_hosted_zone_id" {
+  value = aws_cloudfront_distribution.this.hosted_zone_id
+}
+
 output "aws_access_key_id" {
   value = var.enable_deploy_user ? aws_iam_access_key.deploy[0].id : null
 }
